@@ -43,28 +43,37 @@
 
 ## 講解
 
-### 1. 準備私人設定檔
+### 1. 確認自己的私人設定檔
 
-教師提供：
+你在自己的 Ubuntu VM 執行 `prepare_workshop.py` 後，腳本會在本機建立：
 
 ```text
 $HOME/mariadb-course-app.json
 ```
 
-設定檔應包含四個鍵：
+這不是老師共用的設定檔。每位學生的 VM 都有自己的：
+
+```text
+course_app 帳號
+course_app 密碼
+mariadb_workshop_2026
+MariaDB Unix socket
+```
+
+設定檔的格式應包含四個鍵：
 
 ```json
 {
   "user": "course_app",
-  "password": "教師提供的密碼",
+  "password": "本機 prepare_workshop.py 建立的密碼",
   "database": "mariadb_workshop_2026",
-  "unix_socket": "教師提供的 socket 絕對路徑"
+  "unix_socket": "本機 MariaDB 的絕對 socket 路徑"
 }
 ```
 
-設定檔只放在自己的 VM，不要放進 Git、講義、截圖或命令列。
+以上只是欄位說明，不要把中文佔位文字當成實際值。學生應使用自己 VM 產生的設定檔，不要向老師索取、複製其他同學或使用老師的設定檔。
 
-檢查檔案權限，不要顯示內容：
+先確認檔案權限，不要顯示內容：
 
 ```bash
 stat -c '%a %n' "$HOME/mariadb-course-app.json"
