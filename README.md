@@ -25,3 +25,7 @@ ssh <ubuntu-user>@<vm-host-or-ip>
 ```
 
 進入 Ubuntu 後，確認教師已完成初始化，再依 HackMD Ch1 的 socket 登入命令操作。學生不需要連線到教師的 MariaDB server，也不需要開放 3306。
+
+## 已完成初始化時
+
+`git clone` 與 `python3 prepare_lab.py` 只做一次。完成後直接執行教材的驗證命令；若初始化程式因資料庫、帳號或憑證檔已存在而停止，不要刪除資料重跑。
