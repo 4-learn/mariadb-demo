@@ -1,0 +1,8 @@
+{
+  "dataset_version": "products-v1",
+  "seed_file": "seed.sql",
+  "sha256": "278d5ece0aab2fe6f6a8294e77285085a74bcccd9afaef77cae7b21bd7f50fb8",
+  "rows": {"categories": 3, "products": 12, "course_meta": 1},
+  "synthetic": true,
+  "scope": "lessons01-03; SOP documents and vectors are not included"
+}
