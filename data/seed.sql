@@ -23,13 +23,13 @@ CREATE TABLE products (
     FOREIGN KEY (category_id) REFERENCES categories(category_id)
 ) ENGINE=InnoDB;
 
-INSERT INTO categories VALUES (1, '感測器'), (2, '網關'), (3, '配件');
+INSERT INTO categories VALUES (1, '感測器'), (2, '閘道器'), (3, '配件');
 INSERT INTO products (product_id, name, category_id, price, stock, status) VALUES
     ('P001', '教學感測器 A', 1, 800.00, 10, 'active'),
     ('P002', '教學感測器 B', 1, 1200.00, 20, 'active'),
     ('P003', '教學感測器 C', 1, 1500.00, 0, 'inactive'),
-    ('P004', '教學網關 A', 2, 1800.00, 5, 'active'),
-    ('P005', '教學網關 B', 2, 750.00, 8, 'active'),
+    ('P004', '教學閘道器 A', 2, 1800.00, 5, 'active'),
+    ('P005', '教學閘道器 B', 2, 750.00, 8, 'active'),
     ('P006', '教學感測器 D', 1, 780.00, 0, 'inactive'),
     ('P007', '教學感測器 E', 1, 650.00, 9, 'active'),
     ('P008', '教學感測器 F', 1, 1250.00, 7, 'active'),
