@@ -43,7 +43,41 @@
 
 ## 講解
 
-### 1. 確認自己的私人設定檔
+### 1. 準備 Python Connector
+
+`course_db.py` 會載入 MariaDB Connector/Python；MariaDB server 已存在，但 Python 套件仍需在自己的 VM 安裝一次。
+
+先在 Ubuntu 安裝編譯依賴：
+
+```bash
+sudo apt update
+sudo apt install -y build-essential pkg-config libmariadb-dev python3-dev python3-venv
+```
+
+建立本課專用虛擬環境：
+
+```bash
+python3 -m venv "$HOME/mariadb-course-venv"
+. "$HOME/mariadb-course-venv/bin/activate"
+python -m pip install --upgrade pip
+python -m pip install mariadb==1.1.14
+```
+
+確認 Connector 可以載入：
+
+```bash
+python -c 'import mariadb; print(mariadb.__version__)'
+```
+
+之後每次上課先啟用環境：
+
+```bash
+. "$HOME/mariadb-course-venv/bin/activate"
+```
+
+若直接執行 `python3 course_db.py check` 出現 `ModuleNotFoundError`，通常就是尚未啟用這個虛擬環境或尚未安裝 `mariadb` 套件。
+
+### 2. 確認自己的私人設定檔
 
 你在自己的 Ubuntu VM 執行 `prepare_workshop.py` 後，腳本會在本機建立：
 
@@ -85,7 +119,7 @@ stat -c '%a %n' "$HOME/mariadb-course-app.json"
 600
 ```
 
-### 2. 使用 course_app 建立連線
+### 3. 使用 course_app 建立連線
 
 在 `mariadb-demo` 根目錄執行：
 
@@ -111,7 +145,7 @@ course_app@localhost
 
 不是 root，也不是 `course_editor`。
 
-### 3. connection、cursor 與結果
+### 4. connection、cursor 與結果
 
 最小查詢範例：
 
@@ -143,7 +177,7 @@ fetchone()：取回一列結果
 
 `closing(...)` 會在離開區塊時呼叫 `.close()`；即使區塊中發生例外，也會關閉已建立的資源。
 
-### 4. 核對 checkpoint
+### 5. 核對 checkpoint
 
 ```bash
 python3 course_db.py check
@@ -173,7 +207,7 @@ autocommit 狀態正確
 資料集版本正確
 ```
 
-### 5. 查詢一筆產品
+### 6. 查詢一筆產品
 
 ```bash
 python3 course_db.py get P001
@@ -191,7 +225,7 @@ status：active
 
 Python 內部的金額使用 `Decimal`；命令列輸出固定兩位小數。不要把金額轉成 `float`。
 
-### 6. 失敗不是空清單
+### 7. 失敗不是空清單
 
 執行不存在的設定檔：
 
@@ -218,7 +252,7 @@ P999 不存在：查詢結果可以是 None
 
 不要把設定檔錯誤、權限錯誤或 socket 連線錯誤顯示成「查無資料」。
 
-### 7. autocommit 先認識即可
+### 8. autocommit 先認識即可
 
 本節會讀出：
 
@@ -236,11 +270,12 @@ P999 不存在：查詢結果可以是 None
 
 在自己的 VM 完成：
 
-1. 檢查 `mariadb-course-app.json` 權限為 600，不提交檔案內容。
-2. 執行 checkpoint，確認 database、account、autocommit、版本與三個資料數量。
-3. 查詢 P001，核對名稱、分類、價格、庫存與狀態。
-4. 用不存在的設定檔執行一次，保存退出碼與不含秘密的錯誤摘要。
-5. 說明 connection、cursor 的關閉責任，以及為什麼 connect 失敗時不能關閉不存在的 connection。
+1. 啟用本課 Python 虛擬環境，確認 `mariadb` Connector 可以載入。
+2. 檢查 `mariadb-course-app.json` 權限為 600，不提交檔案內容。
+3. 執行 checkpoint，確認 database、account、autocommit、版本與三個資料數量。
+4. 查詢 P001，核對名稱、分類、價格、庫存與狀態。
+5. 用不存在的設定檔執行一次，保存退出碼與不含秘密的錯誤摘要。
+6. 說明 connection、cursor 的關閉責任，以及為什麼 connect 失敗時不能關閉不存在的 connection。
 
 ### 預期輸出
 
