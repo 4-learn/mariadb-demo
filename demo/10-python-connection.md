@@ -87,11 +87,13 @@ stat -c '%a %n' "$HOME/mariadb-course-app.json"
 
 ### 2. 使用 course_app 建立連線
 
-在課程根目錄執行：
+在 `mariadb-demo` 根目錄執行：
 
 ```bash
 python3 course_db.py check
 ```
+
+`course_db.py` 位於公開 demo repo 根目錄；不要只下載 `demo/10-connection.py` 這個單一檔案。
 
 或執行公開 demo：
 
