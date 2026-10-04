@@ -54,6 +54,27 @@ D001 存在；D999 不存在。練習最後會清理 P912，不修改 P001～P01
 
 ### 1. 交易邊界
 
+這段交易程式已經放在公開 demo repo 的：
+
+```text
+demo/12-transactions.py
+```
+
+你可以先看完整檔案，再執行：
+
+```bash
+cd ~/workspace/mariadb-demo
+PYTHONPATH=. python demo/12-transactions.py
+```
+
+其中交易函式本身定義在：
+
+```text
+course_db.py
+```
+
+`demo/12-transactions.py` 會呼叫 `course_db.py` 的 `create_product_with_document()`，並額外用第二條連線驗證 commit／rollback。
+
 交易包住兩次 DML：
 
 ```python
@@ -80,6 +101,14 @@ raise：保留原始錯誤，不假裝成功
 
 ### 2. 成功案例：P912 連到 D001
 
+請先打開：
+
+```text
+demo/12-transactions.py
+```
+
+這是本節可以直接執行的公開示範檔；不要把講義中的片段當成另一個需要自行建立的檔案。
+
 在自己的 VM 執行：
 
 ```bash
@@ -88,14 +117,31 @@ cd ~/workspace/mariadb-demo
 PYTHONPATH=. python demo/12-transactions.py
 ```
 
-成功函式呼叫的核心是：
+`demo/12-transactions.py` 的成功案例實際呼叫：
 
 ```python
-from course_db import connect, create_product_with_document
-
 result = create_product_with_document(
     conn, "P912", "交易練習", "D001"
 )
+```
+
+真正的交易實作在根目錄：
+
+```text
+course_db.py → create_product_with_document()
+```
+
+在該函式中可以看到：
+
+```python
+conn.begin()
+try:
+    create_product(conn, product_id, name)
+    # INSERT product_documents 關聯
+    conn.commit()
+except BaseException:
+    conn.rollback()
+    raise
 ```
 
 預期第二條連線可以看到：
