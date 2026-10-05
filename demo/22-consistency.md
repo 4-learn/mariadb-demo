@@ -4,7 +4,6 @@
 
 [上一節](21-filters-evaluation.md) · [下一節](23-integration.md)
 
-時間：講解與示範 35 分鐘，Workshop 15 分鐘。
 
 ## 學習目標
 
@@ -30,13 +29,13 @@
 
 ## 講解
 
-### 1. 定義必須一起成立的條件（7 分鐘）
+### 1. 定義必須一起成立的條件
 
 同一 document 的兩個 chunks 與各自 vectors 必須具有相同 source_version；chunk 的 `content_hash=SHA256(UTF-8 text)`，vector 的 content_hash 必須相同。模型 ID、revision、preprocessing_id 也不能混用。
 
 這些條件是應用程式的交易不變條件，不會只靠外鍵自動成立。外鍵能保證 chunk 存在，卻不知道向量是不是對應新版文字。所有寫入入口應遵守同一更新协议；直接手改 SQL 可能破壞它，`check` 會拒絕後續檢索。
 
-### 2. 慢計算在外，短交易在內（9 分鐘）
+### 2. 慢計算在外，短交易在內
 
 完整流程：
 
@@ -65,7 +64,7 @@ if row is None or row[0] != expected_version:
 
 不能把這個 SELECT 移到 BEGIN 前，也不能只在畫面顯示版本而不驗證。兩個編輯者都帶版本 1 時，先取得鎖且成功提交的人變成 2；後取得鎖的人讀到 2，整筆拒絕，重新讀新文件再編輯。
 
-### 3. 先故意失敗，確認沒有半套資料（9 分鐘）
+### 3. 先故意失敗，確認沒有半套資料
 
 ```bash
 mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/22-consistency.sql
@@ -78,7 +77,7 @@ mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 
 
 `course_db.connect()` 的 autocommit=True 不表示多句 SQL 自動是一個交易。程式明確 `conn.begin()`；在 except 中 rollback，成功才 commit。API 要求空閒的 autocommit 連線，避免無意間提交呼叫者未完成的工作。
 
-### 4. 成功更新與 stale 拒絕（10 分鐘）
+### 4. 成功更新與 stale 拒絕
 
 ```bash
 python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1
@@ -112,7 +111,7 @@ finally:
 
 ### 題目
 
-15 分鐘：前後快照 4 分鐘、失敗及成功 7 分鐘、stale 拒絕 4 分鐘。
+前後快照 失敗及成功 stale 拒絕。
 
 1. 在版本 1 注入寫入第一段後失敗，確認全部回滾。
 2. 成功更新兩段，再用同一 expected_version=1 重送，確認拒絕且版本仍為 2。

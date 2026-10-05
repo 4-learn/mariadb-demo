@@ -4,7 +4,6 @@
 
 [上一節](19-vector-ranking.md) · [下一節](21-filters-evaluation.md)
 
-時間：講解與示範 35 分鐘，Workshop 15 分鐘。
 
 ## 學習目標
 
@@ -30,13 +29,13 @@
 
 ## 講解
 
-### 1. 近似的意思是必須有對照（7 分鐘）
+### 1. 近似的意思是必須有對照
 
 ANN 的目標是用索引找靠近查詢的候選，不是替你讀懂 SOP。資料量、向量分布、索引參數、WHERE 篩選與 LIMIT 都影響结果。圖索引的 `M` 影響圖的連接與資源取捨，本課固定 M=6，不把微型 corpus 當成參數調優實驗。
 
 精確結果 E 與 ANN 結果 A 都取最多 k 筆時，可計算 `|A ∩ E| / |E|`。這是「相對精確檢索的候選重合率」，不是人工語意相關的 recall；第 21 節另有 qrels 評估。若 E 為空，分母為零，記 `null`，不能寫 100%。
 
-### 2. 使用 editor 一次建立 cosine 索引（7 分鐘）
+### 2. 使用 editor 一次建立 cosine 索引
 
 ```bash
 mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/20-ann.sql
@@ -52,7 +51,7 @@ SHOW INDEX FROM chunk_vectors;
 
 不要使用預設 euclidean 卻拿 cosine 計畫當同一組測試。DDL 隱含 commit，不放入文件更新交易；editor 具 INDEX／ALTER，app 只查詢與 DML。索引已存在時請先確認課程狀態，不重複建立或自行刪除。
 
-### 3. 查詢形狀會影響是否使用索引（11 分鐘）
+### 3. 查詢形狀會影響是否使用索引
 
 ```bash
 python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --mode ann --k 3 --explain
@@ -73,7 +72,7 @@ ORDER BY distance ASC LIMIT 3;
 
 正式查詢也帶 active 與分類限制。ANN 在選取候選與篩選時仍可能漏掉合格資料，甚至少於 k 筆；課程預設正式正確性用 exact 路徑，不將 ANN 當成「先完整篩選再精確取前 k」的同義詞。
 
-### 4. 精確對照必須繞過向量索引（10 分鐘）
+### 4. 精確對照必須繞過向量索引
 
 ```bash
 python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --mode exact --k 3 --explain
@@ -91,7 +90,7 @@ python vector_course.py evaluate --artifact "$HOME/mariadb-vectors.json" --k 3
 
 ### 題目
 
-15 分鐘：DDL 3 分鐘、兩份 plan 6 分鐘、比較候選 6 分鐘。
+DDL 兩份 plan 比較候選。
 
 1. 確認 cosine 索引已建立，保留 index 名稱與距離設定。
 2. 以 Q01、相同 category 1、k=3 執行 exact／ann，各留 plan 和結果。
