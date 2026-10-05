@@ -4,7 +4,6 @@
 
 [上一節](23-integration.md) · [模組作業](homework/22-search.md)
 
-時間：講解與示範 35 分鐘，Workshop 15 分鐘。
 
 ## 學習目標
 
@@ -30,7 +29,7 @@
 
 ## 講解
 
-### 1. 把「完成」改成可反證的條件（8 分鐘）
+### 1. 把「完成」改成可反證的條件
 
 | 項目 | 通過條件 | 可執行失敗判準 |
 | --- | --- | --- |
@@ -45,7 +44,7 @@
 
 不要用「畫面出現搜尋兩字」當作功能判準，也不要把找不到 table 的錯誤當成 rollback 通過。
 
-### 2. 執行驗收並保留 exit status（9 分鐘）
+### 2. 執行驗收並保留 exit status
 
 ```bash
 python embedding_course.py validate --artifact "$HOME/mariadb-vectors.json"
@@ -59,7 +58,7 @@ python demo/24-acceptance.py --artifact "$HOME/mariadb-vectors.json"
 
 成功會輸出 checks、plans、evaluation 與 `final_document_version=3`。這是期待的輸出結構，實際排名與分數必須從執行結果保存，不從教材複製。課程外的 Ubuntu VM 啟動、教師發布或效能負載，不是這支測試的覆蓋範圍。
 
-### 3. 看懂快照與還原（10 分鐘）
+### 3. 看懂快照與還原
 
 腳本快照包含原文、各版本、兩份 hash、model metadata 與 `HEX(v.embedding)`。用 bytes 比對能發現「看起來都叫 512 維，但數字已換掉」的變化。
 
@@ -85,7 +84,7 @@ update_document(conn, "D001", 2, original, prepared=artifact)
 
 成功後版本為 3。原文及向量 bytes 與版本 1 相同，不代表「歷史上沒有修改過」；版本計數不能倒退。因此此時 `check` 可通過，baseline `evaluate` 仍應拒絕。若要再跑整套驗收，由教師依第 15 節準備新 checkpoint，而不是手動把版本改回 1。
 
-### 4. 交接限制比漂亮分數重要（8 分鐘）
+### 4. 交接限制比漂亮分數重要
 
 报告至少寫：server／Connector 版本、artifact source_hash、模型 revision、實際 case／category／k、兩份 EXPLAIN、八題結果、交易前後快照核對、最終版本與未驗項目。私人設定只寫檔案用途，不附內容。
 
@@ -99,7 +98,7 @@ update_document(conn, "D001", 2, original, prepared=artifact)
 
 ### 題目
 
-15 分鐘：checkpoint 3 分鐘、執行 7 分鐘、整理結論 5 分鐘。
+checkpoint 執行 整理結論。
 
 1. 確認初始版本 1 與 artifact 一致，再執行完整驗收。
 2. 對每個 check 附實際輸出或失敗原因，注明 ANN 是否真的測到。

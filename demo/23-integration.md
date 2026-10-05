@@ -4,7 +4,6 @@
 
 [上一節](22-consistency.md) · [下一節](24-acceptance.md)
 
-時間：講解與示範 35 分鐘，Workshop 15 分鐘。
 
 ## 學習目標
 
@@ -29,7 +28,7 @@
 
 ## 講解
 
-### 1. 輸入、處理、輸出的邊界（7 分鐘）
+### 1. 輸入、處理、輸出的邊界
 
 ```text
 recorded case ID -> 驗 artifact metadata/hash -> 固定 query 向量
@@ -40,7 +39,7 @@ chunk_id/document_id/source_version/text/distance -> JSON 候選輸出
 
 程式不載入生成式 LLM，不產生摘要、不推薦真實設備操作。輸出的 distance 是檢索訊號，使用者仍要檢查產品型號、版本、否定與實際需求。P010 沒 SOP，即使找出 C001，也不能據此回答感測器 H 的步驟。
 
-### 2. 私人連線檔不進命令列密碼（8 分鐘）
+### 2. 私人連線檔不進命令列密碼
 
 前面建立的 app JSON 具有 user、password、database、unix_socket，權限 0600。database 固定 `mariadb_workshop_2026`，只走實際本機 socket，不改成公開 TCP。預設 `course_db.connect()` 讀 `COURSE_DB_CONFIG` 或 `~/mariadb-course-app.json`。
 
@@ -51,7 +50,7 @@ python demo/23-integration.py --config "$HOME/mariadb-course-app.json" --artifac
 
 主 CLI 的全域 `--config` 放在子命令前；demo 是單一命令，位置不同。不要把 JSON 內容、完整連線例外或密碼貼進作業。需要分享錯誤時只保留操作、必要錯誤類型與不敏感的狀態。
 
-### 3. 小程式如何組合既有功能（10 分鐘）
+### 3. 小程式如何組合既有功能
 
 ```python
 from pathlib import Path
@@ -74,7 +73,7 @@ finally:
 
 CLI 回傳 JSON 包含 embedding mode 與 metadata，讓教師分辨這次有沒有跑模型。它不是從文字看起來像 Q01 就偷用 Q01 向量。不存在的 Q99 必須失敗，而不是抓第一筆固定向量。
 
-### 4. 新問題與無答案（10 分鐘）
+### 4. 新問題與無答案
 
 ```bash
 python vector_course.py search --query '教學感測器 G 上傳逾時時應先查什麼？' --offline --category 1 --k 3
@@ -94,7 +93,7 @@ python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q0
 
 ### 題目
 
-15 分鐘：固定模式 5 分鐘、新問題或離線拒絕 5 分鐘、空結果／型號檢查 5 分鐘。
+固定模式 新問題或離線拒絕 空結果／型號檢查。
 
 1. 執行 demo Q01，核對 metadata、原文與版本。
 2. 有模型快取者執行新 query；沒有者明示只能完成固定模式，保留不可偽裝 live-model 的說明。

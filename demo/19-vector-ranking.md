@@ -4,7 +4,6 @@
 
 [上一節](18-vector-storage.md) · [下一節](20-ann.md)
 
-時間：講解與示範 35 分鐘，Workshop 15 分鐘。
 
 ## 學習目標
 
@@ -29,13 +28,13 @@
 
 ## 講解
 
-### 1. 相似度大與距離小是不同方向（8 分鐘）
+### 1. 相似度大與距離小是不同方向
 
 對單位向量 u、v，cosine similarity 為內積，cosine distance 為 `1 - similarity`。同一向量距離接近 0；距離越小越靠近。因此本課使用 `VEC_DISTANCE_COSINE` 並 `ASC`，不是 `DESC`。
 
 不要把距離 0.2 解讀成「錯誤率 20%」或「答案正確率 80%」。模型座標沒有這種機率校準。即使兩個問句只有「不」字不同，向量仍可能非常接近，後面還要檢查否定和型號。
 
-### 2. 自我查詢先驗證方向（8 分鐘）
+### 2. 自我查詢先驗證方向
 
 ```sql
 SET @q=(SELECT embedding FROM chunk_vectors WHERE chunk_id='C001');
@@ -48,7 +47,7 @@ C001 的距離應接近 0，不能要求跨平台剛好印出 `0.000000`。這�
 
 `chunk_id` 是第二排序鍵。同分時輸出才有穩定順序，便於比較測試。不要依賴資料目前插入順序；SQL 沒有 ORDER BY 的順序不受保證。這份 raw SQL 包含所有向量，尚未套用 active 或分類，正式檢索用後面的 API。
 
-### 3. 用真正問題向量查合格段落（10 分鐘）
+### 3. 用真正問題向量查合格段落
 
 ```bash
 python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --k 3 --mode exact
@@ -71,7 +70,7 @@ ORDER BY distance ASC,v.chunk_id ASC LIMIT ?;
 
 上方是計算與排序核心，完整 eligibility SQL 在 `search`，不可省略後拿去當正式客服查詢。`k=3` 表示最多三筆；只有兩筆合格就回兩筆，空分類則零筆，不補入其他分類湊滿三筆。
 
-### 4. 精確基準要可證明（9 分鐘）
+### 4. 精確基準要可證明
 
 ```bash
 python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --k 3 --mode exact --explain
@@ -93,7 +92,7 @@ FROM chunk_vectors v IGNORE INDEX (vector_idx)
 
 ### 題目
 
-15 分鐘：自我距離 4 分鐘、Q01 搜尋 6 分鐘、plan 與說明 5 分鐘。
+自我距離 Q01 搜尋 plan 與說明。
 
 1. 執行自我查詢，核對 C001 距離近零。
 2. 執行 Q01 精確查詢，保留實際 chunk_id、distance、source_version 與原文。

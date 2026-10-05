@@ -4,7 +4,6 @@
 
 [上一節](16-import-quality.md) · [下一節](18-vector-storage.md)
 
-時間：講解與示範 35 分鐘，Workshop 15 分鐘。以下判準是學生應實際核對的條件，不是 VM 已實測的宣稱。
 
 ## 學習目標
 
@@ -30,13 +29,13 @@
 
 ## 講解
 
-### 1. 一串數字表示文字，不是把答案放進資料庫（7 分鐘）
+### 1. 一串數字表示文字，不是把答案放進資料庫
 
 Embedding 是模型把文字映射成固定長度的浮點數序列。512 是輸出座標數，不是字數、token 數或可存 512 篇文章。兩段文字可以有相近方向，但數字本身不包含「這項操作安全」的保證。
 
 本課以 chunk 為檢索單位，保留 document_id、chunk_id、source_version 與原文。取出候選時才用這些欄位回查原文及適用產品。不要把模型輸出的座標命名成「重設程度」等人類特徵；這不是人工指定的 512 個欄位。
 
-### 2. 固定模型、前處理與執行環境（8 分鐘）
+### 2. 固定模型、前處理與執行環境
 
 模型為 `BAAI/bge-small-zh-v1.5`，revision 為 `7999e1d3359715c523056ef9478215996d62a620`，輸出 512 維。學生在自己的新 venv 安裝，不修改教師的既有 LLM venv：
 
@@ -47,7 +46,7 @@ python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/
 python -m pip install transformers==4.57.3 huggingface-hub==0.36.2 numpy==2.2.6
 ```
 
-教師先確認 VM 的 Python／架構支援套件，預留模型下載空間與時間；上課 35 分鐘不包含第一次下載。CPU 可以執行，但不保證任何 VM 的耗時或排名。第 18 節連線還需要前面已準備的 `mariadb==1.1.14` 與 Connector/C 開發依賴。
+教師先確認 VM 的 Python／架構支援套件，預留模型下載空間與時間；第一次模型下載不計入本節操作。CPU 可以執行，但不保證任何 VM 的耗時或排名。第 18 節連線還需要前面已準備的 `mariadb==1.1.14` 與 Connector/C 開發依賴。
 
 本課不依賴 sentence-transformers 套件，而是依模型卡的 Transformers 實作取第一個 token 的 CLS，再做 L2 normalization。等價的設定意圖是 `normalize_embeddings=True`，metadata 也明記此值：
 
@@ -59,7 +58,7 @@ with torch.inference_mode():
 
 查詢加上模型卡指定前綴 `为这个句子生成表示以用于检索相关文章：`；SOP 原文不加。前綴保留模型卡原字，不翻譯。課程程式拒絕超過 512 tokens 的輸入，而不是偷偷截斷後仍宣稱 encode 了全文。
 
-### 3. 真正執行 encode（10 分鐘）
+### 3. 真正執行 encode
 
 在課程根目錄執行，首次連網下載固定 revision：
 
@@ -79,7 +78,7 @@ print(len(v), sum(x*x for x in v))
 
 第一項應為 512，第二項應接近 1，非要求浮點數剛好等於 1。完整向量包含正負小數；不應複製示範的前五個數字再補零成向量。`encode` 的輸入是 list，輸出是一個 list of vectors，`[0]` 才是第一段文字的向量。
 
-### 4. Artifact 是可追溯的計算成果（10 分鐘）
+### 4. Artifact 是可追溯的計算成果
 
 ```bash
 python embedding_course.py generate --output "$HOME/mariadb-vectors.json" --offline
@@ -98,7 +97,7 @@ python embedding_course.py validate --artifact "$HOME/mariadb-vectors.json"
 
 ### 題目
 
-15 分鐘：讀 metadata 4 分鐘、執行及核對向量 7 分鐘、記錄失敗 4 分鐘。
+讀 metadata 執行及核對向量 記錄失敗。
 
 1. encode「如何恢復出廠設定？」並記下維度、平方範數、revision 與是否離線。
 2. 以原始 corpus 生成 artifact，或明示使用教師預計算檔。核對 16／8／2 的三種向量數量。

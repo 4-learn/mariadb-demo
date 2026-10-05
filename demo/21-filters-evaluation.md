@@ -4,7 +4,6 @@
 
 [上一節](20-ann.md) · [下一節](22-consistency.md)
 
-時間：講解與示範 35 分鐘，Workshop 15 分鐘。
 
 ## 學習目標
 
@@ -29,7 +28,7 @@
 
 ## 講解
 
-### 1. JOIN 的重複不是模型錯誤（8 分鐘）
+### 1. JOIN 的重複不是模型錯誤
 
 ```sql
 SELECT c.chunk_id,p.product_id
@@ -44,7 +43,7 @@ ORDER BY c.chunk_id,p.product_id;
 
 正確的業務需求是「是否至少存在一個符合條件的產品」，不是「每個產品都複製一列段落」，所以用 EXISTS。
 
-### 2. 先決定哪些段落有資格（9 分鐘）
+### 2. 先決定哪些段落有資格
 
 ```sql
 SET @category=1;
@@ -63,7 +62,7 @@ ORDER BY c.chunk_id;
 
 exact 路徑把這個資格條件放在 WHERE，最後才依距離及 chunk_id 排序取 k。`category_id=None` 表示不限定分類，並不跳過 active 檢查。這不是完整產品型號解析器；P010 這種使用者文字中的編號仍需另外核對關聯。
 
-### 3. 人工相關標註與模型排名必須分開（10 分鐘）
+### 3. 人工相關標註與模型排名必須分開
 
 `data/search_cases.json` 提供八筆教材作者逐段判讀的 qrels，不是從模型排名反推。作者為 AI agent，檔案明示 `teacher_review_required`，不冒稱已有真人教師簽核。教師需檢查每題的 query、category、relevant_chunk_ids、rationale，確認需求定義後才作評分基準。
 
@@ -80,7 +79,7 @@ exact 路徑把這個資格條件放在 WHERE，最後才依距離及 chunk_id �
 
 Q03 可以找出「不支援」段落作為限制說明，但不能用它滿足「提供支援的產品與設定」這個請求。Q04 問的是限制本身，所以相關集合不同。標註依需求而定，不是每個出現 5 GHz 的段落都算正確。
 
-### 4. 算品質，保留失敗（8 分鐘）
+### 4. 算品質，保留失敗
 
 ```bash
 python vector_course.py evaluate --artifact "$HOME/mariadb-vectors.json" --k 3
@@ -98,7 +97,7 @@ python vector_course.py evaluate --artifact "$HOME/mariadb-vectors.json" --k 3
 
 ### 題目
 
-15 分鐘：合格集合 5 分鐘、八題評估 6 分鐘、錯誤分析 4 分鐘。
+合格集合 八題評估 錯誤分析。
 
 1. 執行分類 1 的合格集合，核對十列且無重複。
 2. 對 Q03、Q04 比較實際候選與不同的 qrels，圈出原文的否定。

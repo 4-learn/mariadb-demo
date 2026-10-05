@@ -4,7 +4,6 @@
 
 [上一節](17-embedding.md) · [下一節](19-vector-ranking.md)
 
-時間：講解與示範 35 分鐘，Workshop 15 分鐘。
 
 ## 學習目標
 
@@ -29,7 +28,7 @@
 
 ## 講解
 
-### 1. 一個 chunk 對一筆向量（7 分鐘）
+### 1. 一個 chunk 對一筆向量
 
 ```sql
 CREATE TABLE chunk_vectors (
@@ -48,7 +47,7 @@ CREATE TABLE chunk_vectors (
 
 本課只支援一個固定模型集合，不實作多模型並存。若未來換模型，應設計完整重建／切換流程，而不是在同一欄位塞入新舊模型。
 
-### 2. 建表與使用表的權限分開（6 分鐘）
+### 2. 建表與使用表的權限分開
 
 建表用 editor；這段與上方概念建表二擇一，實際以配套 SQL 為準，不能重複建立：
 
@@ -58,7 +57,7 @@ mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 
 
 執行前確認檔案 0600 與庫名。已有表就請教師核對 checkpoint，不加 `IF NOT EXISTS` 隱藏結構不符，也不要求 app 用 root。DDL 有隱含 commit，不能拿後面的 rollback 当成建表復原方案。此時刻意**尚不建向量索引**，先建立第 19 節精確對照。
 
-### 3. JSON 是值，不是 SQL 字串拼接（10 分鐘）
+### 3. JSON 是值，不是 SQL 字串拼接
 
 Python list 不能直接當作 SQL 的 512 個欄位。我們將它序列化成一個 JSON array 字串，再讓 `VEC_FromText(?)` 轉成 VECTOR：
 
@@ -89,7 +88,7 @@ cur.execute("""INSERT INTO chunk_vectors
 
 `values` 是七個值的 tuple，最後一項才是向量 JSON。完整可執行實作見 `_write_vector`；不以 f-string 將問題、原文或數字串入 SQL。Connector 1.1.14 使用 `?` 參數標记。
 
-### 4. 先驗來源，再一次入庫（12 分鐘）
+### 4. 先驗來源，再一次入庫
 
 ```bash
 python vector_course.py ingest --artifact "$HOME/mariadb-vectors.json"
@@ -117,7 +116,7 @@ ORDER BY c.chunk_id;
 
 ### 題目
 
-15 分鐘：建表核對 4 分鐘、入庫 7 分鐘、錯誤分類 4 分鐘。
+建表核對 入庫 錯誤分類。
 
 1. 用 editor 建表，用 app 入庫；記錄各自角色，不貼私人設定。
 2. 核對 16 筆與 hash／version，解釋為何不能只有 `embedding` 一欄。
