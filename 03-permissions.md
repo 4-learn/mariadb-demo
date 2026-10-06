@@ -49,6 +49,8 @@ course_reader@localhost
 mariadb --no-defaults --default-character-set=utf8mb4 --protocol=socket --user=course_reader --password mariadb_course
 ```
 
+![image](https://hackmd.io/_uploads/H1tpQLC5zg.png)
+
 在 MariaDB prompt 執行：
 
 ```sql
@@ -59,6 +61,8 @@ SELECT VERSION() AS server_version,
 SELECT * FROM course_meta;
 SHOW GRANTS FOR CURRENT_USER;
 ```
+
+![image](https://hackmd.io/_uploads/ByEyEUC5fx.png)
 
 應確認：
 
@@ -88,7 +92,7 @@ dataset_version：  products-v1
 哪個帳號：  course_reader@localhost
 ```
 
-如果看到 `UPDATE`、`ALL PRIVILEGES` 或 `GRANT OPTION`，先停止並請教師確認，不要自行修正權限。
+若看到 `UPDATE`、`ALL PRIVILEGES` 或 `GRANT OPTION`，先停止並請教師確認，不要自行修正權限。
 
 ### 3. 先確認資料，再測試拒絕
 
@@ -99,6 +103,8 @@ SELECT product_id, stock
 FROM products
 WHERE product_id = 'P001';
 ```
+
+![image](https://hackmd.io/_uploads/BkbbELAqMg.png)
 
 應看到：
 
@@ -118,6 +124,8 @@ WHERE product_id = 'P001';
 
 這句 SQL 本身是有效的；本節期待它因為帳號沒有 UPDATE 權限而被拒絕：
 
+![image](https://hackmd.io/_uploads/rJHdNU0qfe.png)
+
 ```text
 ERROR 1142 ... UPDATE command denied ... products
 ```
@@ -131,6 +139,8 @@ SELECT product_id, stock
 FROM products
 WHERE product_id = 'P001';
 ```
+
+![image](https://hackmd.io/_uploads/Hk_LE8Rqfl.png)
 
 結果必須仍然是：
 
