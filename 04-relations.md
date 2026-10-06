@@ -1,6 +1,6 @@
 # 04 產品與 SOP：用主鍵、外鍵表達關聯
 
-> **定位**：用主鍵、外鍵與關聯表描述產品、分類和 SOP 之間的關係，並為後面的 Embedding 與 LLM RAG 建立資料基礎。
+> **定位**：用主鍵、外鍵與關聯表描述產品、分類和 SOP 之間的關係。
 
 ## 學習目標
 
@@ -8,9 +8,7 @@
 
 - 說明主鍵與外鍵各自解決什麼問題
 - 分辨一對多與多對多
-- 知道為什麼 SOP 要拆成可搜尋的 chunks
 - 用固定 ID 找到產品、文件與段落
-- 初步理解 chunks 和未來 LLM RAG 的關係
 - 說明為什麼不能把共用 SOP 複製到每個產品
 
 ## 範例程式碼
@@ -20,67 +18,11 @@
 
 ---
 
-## 情境：客服知識庫要找得到正確段落
+## 情境
 
-客服問：
-
-```text
-感測器 A 如何恢復出廠設定？
-```
-
-系統不能只知道「這是一個問題」，還要找得到：
-
-```text
-哪個產品
-哪一份 SOP
-SOP 中哪一個段落
-```
-
-因此資料要保留這條關係：
-
-```text
-產品
-  ↓
-產品與文件的關聯
-  ↓
-SOP 文件
-  ↓
-SOP 段落 chunk
-```
-
-這會影響後面的 LLM RAG：
-
-```text
-先從資料庫找到相關 chunks
-→ 把合格 chunks 提供給 LLM
-→ LLM 根據這些內容產生回答
-```
-
-如果資料庫找錯產品、找錯版本或把段落重複計算，後面的 LLM 也可能根據錯誤內容回答。
+客服發現感測器 A 有兩份 SOP，感測器 B 也使用其中一份。若把 SOP 文字直接複製到產品表，修改文件時就可能漏改其中一份。
 
 另外，P010 已經是產品，但目前還沒有 SOP。資料庫要能分辨「沒有關聯」和「資料不存在」。
-
-## 先認識 LLM RAG
-
-RAG 是 **Retrieval-Augmented Generation**，中文可稱為「檢索增強生成」。
-
-簡單說：
-
-```text
-R：Retrieval，先從自己的資料找相關內容
-A：Augmented，把找到的內容放進問題上下文
-G：Generation，再請 LLM 根據上下文產生文字
-```
-
-本課先做前半段：
-
-```text
-資料庫關聯
-→ 找到合格 chunks
-→ 後面轉成 embedding 並搜尋
-```
-
-本課不直接建立聊天機器人，也不把 LLM 的回答當成資料庫真相。後面的向量課程會讓系統找到候選段落；使用者仍要核對產品、版本、否定詞與原文。
 
 ---
 
@@ -121,23 +63,7 @@ dataset_version：  products-v1、sop-v1
 
 若找不到 editor 設定檔或 `sop-v1`，先請教師補好 Workshop checkpoint，不要把 SOP 匯入 `mariadb_course`。
 
-### 2. 第一次看到 SQL 語法
-
-之後的查詢會反覆使用這些 SQL 語法。先用表格認識它們：
-
-| 語法 | 用途 | 本節例子 |
-| --- | --- | --- |
-| `SELECT` | 指定要看的欄位 | `SELECT product_id, name` |
-| `FROM` | 指定從哪張表查 | `FROM products` |
-| `WHERE` | 篩選符合條件的資料 | `WHERE product_id = 'P001'` |
-| `ORDER BY` | 排序結果 | `ORDER BY chunk_id` |
-| `COUNT(*)` | 計算資料列數量 | `COUNT(*) AS bad_hashes` |
-| `AS` | 替欄位或結果取易讀的別名 | `AS source_version` |
-| `<>` | 判斷不等於 | `content_hash <> ...` |
-
-本節不要求背完所有 SQL；先知道每個語法在查詢中負責什麼。
-
-### 3. 主鍵：每筆資料的固定身份
+### 2. 主鍵：每筆資料的固定身份
 
 | 表 | 一列代表 | 主鍵 |
 | --- | --- | --- |
@@ -155,15 +81,16 @@ dataset_version：  products-v1、sop-v1
 SHOW CREATE TABLE product_documents;
 ```
 
-### 4. 一對多：一個上層資料對應多筆下層資料
+![image](https://hackmd.io/_uploads/SJzzBdRqfx.png)
 
-```text
-categories 1 ───< products
-    一個分類有多個產品
+![image](https://hackmd.io/_uploads/ry8nUdRczx.png)
 
-documents 1 ───< chunks
-    一份 SOP 有多個段落
-```
+
+
+### 3. 一對多：一個上層資料對應多筆下層資料
+
+![image](https://hackmd.io/_uploads/ByHOd_09Gg.png)
+
 
 產品用 `category_id` 指向分類；段落用 `document_id` 指向文件。這些欄位是外鍵，必須指向已存在的資料。
 
@@ -176,6 +103,9 @@ WHERE category_id = 1
 ORDER BY product_id;
 ```
 
+![image](https://hackmd.io/_uploads/HJYY_dAqfe.png)
+
+
 這會回傳分類 1 的多個產品。反過來看，一個產品只有一個 `category_id`：
 
 ```sql
@@ -184,6 +114,9 @@ FROM products
 WHERE product_id IN ('P001', 'P002')
 ORDER BY product_id;
 ```
+
+![image](https://hackmd.io/_uploads/BJ-oOuRqGl.png)
+
 
 同樣地，一份 SOP 可以有多個段落：
 
@@ -194,34 +127,16 @@ WHERE document_id = 'D002'
 ORDER BY chunk_id;
 ```
 
-預期：
+![image](https://hackmd.io/_uploads/S1xWFdRqzg.png)
 
-```text
-C003  D002  1
-C004  D002  1
-```
+預期 D002 對應 C003、C004。這些查詢是在讀取一對多的資料，不需要 `JOIN`。
 
-### 為什麼現在要查 chunks？
-
-因為一份 SOP 文件不是後面搜尋的最小單位。後面的 Embedding 與向量檢索會以 chunk 為單位：
-
-```text
-D002
-├── C003 → 未來產生一個向量
-└── C004 → 未來產生一個向量
-```
-
-RAG 的檢索階段會先找到合格的 chunk，再把這些段落提供給 LLM。現在先查出 D002 的 C003、C004，是為了確認後面真正要搜尋、轉成向量與交給 LLM 參考的資料單位。
-
-這些查詢是在讀取一對多的資料，不需要 `JOIN`。
-
-### 5. 多對多：使用關聯表
+### 4. 多對多：使用關聯表
 
 產品和 SOP 之間可能是多對多：一個產品有多份 SOP，一份 SOP 也能給多個產品使用。
 
-```text
-products >───< product_documents >───< documents
-```
+![image](https://hackmd.io/_uploads/HyGIYuRcGx.png)
+
 
 實際上，`product_documents` 的每一列只代表一組配對：
 
@@ -237,6 +152,8 @@ WHERE document_id = 'D001'
 ORDER BY product_id;
 ```
 
+![image](https://hackmd.io/_uploads/Sk-sY_R5Mg.png)
+
 預期：
 
 ```text
@@ -246,7 +163,7 @@ D001 的產品：P001、P002
 
 同一個 P001 可以有兩份文件；同一個 D001 也可以連到兩個產品。只有同一組 `product_id + document_id` 不可重複。
 
-### 6. 沒有關聯不等於資料不存在
+### 5. 沒有關聯不等於資料不存在
 
 ```sql
 SELECT product_id
@@ -262,6 +179,9 @@ FROM documents
 WHERE document_id = 'D003';
 ```
 
+![image](https://hackmd.io/_uploads/Bys3YdA5Mg.png)
+
+
 預期：
 
 ```text
@@ -271,39 +191,111 @@ D003：文件存在，但 status 是 inactive
 
 外鍵只確認資料存在，不會自動判斷產品是否販售中或文件是否有效；那些是查詢時的業務條件。
 
-### 7. 文件與段落各有自己的 ID
+### 6. 文件與段落各有自己的 ID
+
+`chunks` 表用來保存一份 SOP 被切開後的段落。一列代表一個段落：
+
+| 欄位 | 意思 |
+| --- | --- |
+| `chunk_id` | 這個段落自己的固定 ID，例如 `C003` |
+| `document_id` | 這個段落屬於哪一份文件，例如 `D002` |
+| `source_version` | 這個段落所屬的文件版本 |
+| `text` | 段落的實際文字內容 |
+| `content_hash` | 由 `text` 計算出的 hash value，用來檢查內容是否一致 |
+
+先記住這個關係：
+
+```text
+D002
+├── C003
+└── C004
+```
+
+也就是：
+
+```text
+一份文件（document）
+→ 多個段落（chunks）
+```
+
+一份 SOP 文件可能會拆成多個段落。先查 D002 的段落：
 
 ```sql
 SELECT chunk_id, document_id, source_version
 FROM chunks
 WHERE document_id = 'D002'
 ORDER BY chunk_id;
+```
 
+![image](https://hackmd.io/_uploads/B1h6tO0czg.png)
+
+這個查詢會告訴我們：
+
+```text
+D002
+├── C003
+└── C004
+```
+
+也就是：
+
+```text
+一份文件（document）
+→ 多個段落（chunks）
+```
+
+為什麼要先確認這件事？因為後面的 Embedding 與向量檢索，會以 `chunk` 作為搜尋的資料單位，而不是直接把整份 SOP 當成一筆資料。未來的 LLM RAG 也會先找出相關 chunks，再把它們提供給 LLM 參考：
+
+```text
+問題
+→ 找到相關 chunks
+→ 提供給 LLM
+→ LLM 根據這些內容產生回答
+```
+
+這裡的 RAG 是「檢索增強生成」：先檢索自己的資料，再讓 LLM 根據找到的內容生成回答。本課目前只先建立資料關係，不會在本節建立聊天機器人。
+
+接著確認 D002 的段落版本：
+
+```sql
+SELECT chunk_id, document_id, source_version
+FROM chunks
+WHERE document_id = 'D002'
+ORDER BY chunk_id;
+```
+
+預期 D002 對應 C003、C004，版本都是 1。
+
+| SQL 語法 | 簡單意思 |
+| --- | --- |
+| `SELECT` | 要查看哪些欄位 |
+| `FROM chunks` | 從 `chunks` 表查詢 |
+| `WHERE` | 設定篩選條件 |
+| `document_id = 'D002'` | 只查屬於 D002 的段落 |
+| `ORDER BY chunk_id` | 按段落 ID 排序 |
+
+最後，比對每個 chunk 的 hash value：
+
+```sql
 SELECT COUNT(*) AS bad_hashes
 FROM chunks
 WHERE BINARY content_hash <> BINARY SHA2(`text`, 256);
 ```
 
-預期 D002 有 C003、C004，版本都是 1；`bad_hashes` 是 0。
-
-這表示目前沒有發現 chunk 的文字與保存的 hash value 不一致。這是後面產生 embedding 前的基本檢查：
+這是在比較：
 
 ```text
-chunk 原文
-→ content_hash
-→ embedding vector
+資料表原本保存的 content_hash
+和目前 text 重新計算出的 SHA-256 hash
 ```
 
-三者必須能對得起來，否則 RAG 可能把新版原文和舊版向量混在一起。
-
-本節不是在教 hash 演算法，也不是在做向量搜尋；本節先建立：
+預期：
 
 ```text
-document
-→ chunks
-→ 每個 chunk 的原文與版本
-→ 確認內容沒有不一致
+bad_hashes：0
 ```
+
+`0` 表示目前沒有發現 chunk 文字和保存的 hash value 不一致。這個檢查的理由是：未來產生 embedding 時，向量必須對應正確的原文；否則 RAG 可能找到舊文字的向量，卻顯示新版文字。
 
 這一節先讀懂關係，不建立新表。第 05 節再把關係圖寫成 DDL，第 08 節才用 JOIN 組合資料。
 
@@ -318,9 +310,8 @@ document
 1. 寫出 `products`、`documents`、`product_documents`、`chunks` 各自的一列意義、主鍵與外鍵方向。
 2. 查詢 P001 的所有文件，再反查 D001 的所有產品。
 3. 用兩個查詢證明 P010「產品存在，但沒有文件關聯」。
-4. 查詢 D002 的段落與版本，說明 C003、C004 為什麼是後續向量與 RAG 的檢索單位。
-5. 比對所有 chunks 的 hash value，確認 `bad_hashes`。
-6. 說明為什麼 P001/D005 合法，而重複的 P001/D001 與不存在的 P001/D999 不合法。
+4. 查詢 D002 的段落與版本，確認摘要沒有不一致。
+5. 說明為什麼 P001/D005 合法，而重複的 P001/D001 與不存在的 P001/D999 不合法。
 
 ### 預期輸出
 
@@ -339,7 +330,6 @@ bad_hashes：0
 - 一張簡化關聯圖
 - 主鍵與外鍵標記
 - 查詢與實際結果
-- 一段說明：chunk 為什麼是未來向量檢索與 RAG 的資料單位
 - 一段說明：為什麼 SOP 不應複製到每個產品
 
 不要修改正式 products、documents 或 chunks 資料，也不要提交密碼。
