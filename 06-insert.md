@@ -139,7 +139,13 @@ D901 / 課堂連線草稿 / 1 / active
 
 ### 4. NULL、空字串與預設值
 
-現在用剛新增的文件資料，分辨「沒有值」與「空文字」。
+本節的 `practice_documents_06` 必須包含 `note VARCHAR(200) NULL` 欄位。初始化腳本會在建立表時加入 `note`；如果表已經存在，也會先用 `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` 補上欄位。可先確認：
+
+```sql
+SHOW COLUMNS FROM practice_documents_06;
+```
+
+看到 `note` 後，再用剛新增的文件資料分辨「沒有值」與「空文字」。
 
 ```sql
 INSERT INTO practice_documents_06 (document_id, title, note)

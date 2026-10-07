@@ -4,8 +4,11 @@ CREATE TABLE IF NOT EXISTS practice_documents_06 (
     document_id VARCHAR(16) PRIMARY KEY,
     title VARCHAR(120) NOT NULL,
     source_version INT NOT NULL DEFAULT 1 CHECK (source_version >= 1),
-    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active'
+    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+    note VARCHAR(200) NULL
 ) ENGINE=InnoDB;
+ALTER TABLE practice_documents_06
+    ADD COLUMN IF NOT EXISTS note VARCHAR(200) NULL;
 CREATE TABLE IF NOT EXISTS practice_links_06 (
     product_id CHAR(4) NOT NULL,
     document_id VARCHAR(16) NOT NULL,
