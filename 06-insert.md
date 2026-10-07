@@ -109,7 +109,7 @@ COMMIT            → 確認並保存
 START TRANSACTION;
 
 INSERT INTO practice_documents_06 (document_id, title)
-VALUES ('D901', '課堂連線草稿');
+VALUES ('D900', '課堂連線草稿');
 
 SELECT ROW_COUNT() AS inserted_documents;
 ```
@@ -134,7 +134,7 @@ ORDER BY document_id;
 預期：
 
 ```text
-D901 / 課堂連線草稿 / 1 / active
+D900 / 課堂連線草稿 / 1 / active
 ```
 
 ### 4. NULL、空字串與預設值
