@@ -196,33 +196,38 @@ ROLLBACK → 取消交易中的資料列異動（Ch6）
 在 `mariadb_workshop_2026` 完成以下任務：
 
 1. 建立 `practice_documents_05` 與 `practice_links_05`。
-2. 確認 `practice_links_05` 有複合主鍵與兩個正確外鍵。
-3. 用 `ALTER TABLE` 加入可為 `NULL` 的 `note`。
-4. 檢查兩張表的欄位、主鍵與外鍵結構。
-5. 說明為什麼資料列新增與 `ROLLBACK` 會在 Ch6 練習。
+2. 使用 `SHOW COLUMNS` 查看 `practice_documents_05` 的欄位。
+3. 使用 `SHOW CREATE TABLE` 確認兩張表的主鍵、外鍵與欄位限制。
+4. 使用 `ALTER TABLE` 加入可為 `NULL` 的 `note` 欄位。
+5. 再次使用 `SHOW COLUMNS`，確認 `note` 已加入且允許 `NULL`。
+6. 說明本節只處理 DDL；`INSERT`、交易與 `ROLLBACK` 在 Ch6 練習。
 
 不要修改正式的 `documents`、`product_documents` 或其他共用資料。
 
 ### 預期輸出
 
 ```text
-```
+practice_documents_05：
+- document_id：PRIMARY KEY
+- source_version：NOT NULL、DEFAULT 1、CHECK >= 1
+- status：NOT NULL、DEFAULT active、ENUM
+- note：VARCHAR(200)，可為 NULL
 
-結構仍應包含：
-
-```text
-practice_documents_05：5 欄，note 可為 NULL
-practice_links_05：複合主鍵、兩個外鍵、InnoDB
+practice_links_05：
+- PRIMARY KEY：product_id + document_id
+- product_id：FK → products.product_id
+- document_id：FK → practice_documents_05.document_id
+- ENGINE：InnoDB
 ```
 
 ### 交件
 
 提交：
 
-- `SHOW COLUMNS` 結果
-- 兩張表的 `SHOW CREATE TABLE` 結果
-- 兩張表的實際結構檢查結果
-- 一段說明：本節為什麼只處理 DDL
+- `SHOW COLUMNS` 的實際結果
+- 兩張表的 `SHOW CREATE TABLE` 實際結果
+- `ALTER TABLE` 後確認 `note` 已加入且可為 `NULL` 的結果
+- 一段說明：`CREATE TABLE` 建立表，`ALTER TABLE` 修改已存在的表；`INSERT`、交易與 `ROLLBACK` 留到 Ch6。
 
 不要提交密碼或私人設定檔內容。
 
