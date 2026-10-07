@@ -166,8 +166,6 @@ chunks.document_id
 
 ---
 
-## Workshop
-
 ## 2. Checkpoint 1：查詢 chunks 的 PK 與 FK
 
 先查看 `chunks` 表的完整定義：
@@ -418,44 +416,97 @@ D001 被 P001、P002 使用。
 
 ---
 
-## 本章完成條件
+---
 
-```text
-Checkpoint 1：能從 SHOW CREATE TABLE 找出 PK 與 FK
-Checkpoint 2：能說明 D002 → C003、C004
-Checkpoint 3：能查出 P001 的文件與 D001 的產品
+## Workshop
+
+請在 `mariadb_workshop_2026` 完成以下三個 Checkpoint。
+
+### Checkpoint 1：找出 PK 與 FK
+
+執行：
+
+```sql
+SHOW CREATE TABLE chunks;
 ```
 
-## 教學圖片參考
+記錄：
 
-![image](https://hackmd.io/_uploads/HJD_3d7ofx.png)
+```text
+chunks.chunk_id 是 chunks 表的 PK。
+chunks.document_id 是 FK，指向 documents.document_id。
+```
 
-![image](https://hackmd.io/_uploads/Hyp1TuXiMl.png)
+### Checkpoint 2：確認一對多關係
 
-![image](https://hackmd.io/_uploads/S1g7auQjGg.png)
+執行：
 
-![image](https://hackmd.io/_uploads/BJyrTumofl.png)
+```sql
+SELECT chunk_id, document_id, source_version
+FROM chunks
+WHERE document_id = 'D002'
+ORDER BY chunk_id;
+```
 
-![image](https://hackmd.io/_uploads/ryeDp_7sfg.png)
+記錄實際結果，並回答：
 
-![image](https://hackmd.io/_uploads/SJzzBdRqfx.png)
+```text
+D002 被拆成哪些 chunks？
+chunks.document_id 的用途是什麼？
+```
 
-![image](https://hackmd.io/_uploads/ry8nUdRczx.png)
+預期：
 
-![image](https://hackmd.io/_uploads/ByHOd_09Gg.png)
+```text
+D002 被拆成 C003 與 C004；兩個段落都是 source_version 1。
+chunks.document_id 記錄每個 chunk 所屬的 document。
+```
 
-![image](https://hackmd.io/_uploads/HJYY_dAqfe.png)
+### Checkpoint 3：確認多對多關係
 
-![image](https://hackmd.io/_uploads/BJ-oOuRqGl.png)
+查詢 P001 使用哪些 SOP：
 
-![image](https://hackmd.io/_uploads/S1xWFdRqzg.png)
+```sql
+SELECT product_id, document_id
+FROM product_documents
+WHERE product_id = 'P001'
+ORDER BY document_id;
+```
 
-![image](https://hackmd.io/_uploads/HyGIYuRcGx.png)
+再查詢 D001 被哪些產品使用：
 
-![image](https://hackmd.io/_uploads/Sk-sY_R5Mg.png)
+```sql
+SELECT product_id, document_id
+FROM product_documents
+WHERE document_id = 'D001'
+ORDER BY product_id;
+```
 
-![image](https://hackmd.io/_uploads/Bys3YdA5Mg.png)
+回答：
 
-![image](https://hackmd.io/_uploads/r1bFQjMsfl.png)
+```text
+P001 使用哪些 SOP？
+D001 被哪些產品使用？
+為什麼需要 product_documents？
+```
 
-![image](https://hackmd.io/_uploads/B1h6tO0czg.png)
+預期：
+
+```text
+P001 使用 D001、D005。
+D001 被 P001、P002 使用。
+product_documents 每一列保存一組產品／SOP 配對，讓多對多關係可以被查詢與驗證。
+```
+
+### 交件
+
+提交：
+
+```text
+Checkpoint 1 的 PK／FK 答案
+Checkpoint 2 的實際查詢結果與回答
+Checkpoint 3 的兩個實際查詢結果與回答
+```
+
+不要提交密碼、完整設定檔或包含敏感資訊的畫面。
+
