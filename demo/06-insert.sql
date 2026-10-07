@@ -20,11 +20,11 @@ START TRANSACTION;
 INSERT INTO practice_documents_06 (document_id, title) VALUES ('D900', '課堂連線草稿');
 SELECT ROW_COUNT() AS inserted_documents;
 INSERT INTO practice_links_06 (product_id, document_id) VALUES
-    ('P001', 'D901'), ('P002', 'D901');
+    ('P001', 'D900'), ('P002', 'D900');
 SELECT ROW_COUNT() AS inserted_links;
 SELECT document_id, title, source_version, status FROM practice_documents_06 ORDER BY document_id;
 SELECT product_id, document_id FROM practice_links_06 ORDER BY product_id, document_id;
 ROLLBACK;
 SELECT (SELECT COUNT(*) FROM practice_documents_06) AS documents_after,
        (SELECT COUNT(*) FROM practice_links_06) AS links_after;
--- Expected 1, 2; D901/version 1/active; two links; final 0/0.
+-- Expected 1, 2; D900/version 1/active; two links; final 0/0.
