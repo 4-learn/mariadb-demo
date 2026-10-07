@@ -166,6 +166,8 @@ chunks.document_id
 
 ---
 
+## Workshop
+
 ## 2. Checkpoint 1：查詢 chunks 的 PK 與 FK
 
 先查看 `chunks` 表的完整定義：
@@ -416,31 +418,13 @@ D001 被 P001、P002 使用。
 
 ---
 
-## 討論：哪些內容先不列為核心？
-
-以下內容可以留在正式教材或延伸練習，但不一定列為第一次 Workshop 的核心交件：
-
-```text
-P010 沒有文件關聯
-D003 inactive
-content_hash 與 SHA2 比對
-ERROR 1062
-ERROR 1452
-完整關聯圖
-```
-
----
-
-## 建議的核心交件
+## 本章完成條件
 
 ```text
 Checkpoint 1：能從 SHOW CREATE TABLE 找出 PK 與 FK
 Checkpoint 2：能說明 D002 → C003、C004
 Checkpoint 3：能查出 P001 的文件與 D001 的產品
 ```
-
-> 本章完成後，你應能辨認 PK、FK，說明一對多與多對多關係，並查詢產品、SOP 與段落之間的關聯。
-
 
 ## 教學圖片參考
 
