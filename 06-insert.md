@@ -137,7 +137,59 @@ ORDER BY document_id;
 D901 / 課堂連線草稿 / 1 / active
 ```
 
-### 4. 依父表、子表順序建立關聯
+### 4. NULL、空字串與預設值
+
+現在用剛新增的文件資料，分辨「沒有值」與「空文字」。
+
+```sql
+INSERT INTO practice_documents_06 (document_id, title, note)
+VALUES
+    ('D901', '課堂草稿', NULL),
+    ('D902', '另一份草稿', '');
+
+SELECT document_id,
+       source_version,
+       status,
+       note,
+       note IS NULL AS missing_note
+FROM practice_documents_06
+ORDER BY document_id;
+```
+
+預期：
+
+```text
+D901：missing_note = 1
+D902：missing_note = 0
+兩列的 source_version = 1
+兩列的 status = active
+```
+
+```text
+NULL → 沒有值
+''   → 長度為 0 的文字
+```
+
+判斷 `NULL` 要用：
+
+```sql
+note IS NULL
+```
+
+不要寫：
+
+```sql
+note = NULL
+```
+
+`source_version` 與 `status` 沒有在 `INSERT` 中提供，因此使用資料表的 `DEFAULT`：
+
+```text
+source_version → 1
+status         → active
+```
+
+### 5. 依父表、子表順序建立關聯
 
 文件表是父表，關聯表是子表。先有 D901，才能新增指向它的關聯：
 
@@ -164,7 +216,7 @@ P002 / D901
 
 兩組括號代表兩列；每一組括號就是一筆資料。這就是一份文件被兩個產品使用的關聯。
 
-### 5. 測試重複鍵：ERROR 1062
+### 6. 測試重複鍵：ERROR 1062
 
 `practice_links_06` 的複合主鍵是：
 
@@ -193,7 +245,7 @@ ERROR 1062
 ROLLBACK;
 ```
 
-### 6. 測試不存在的父資料：ERROR 1452
+### 7. 測試不存在的父資料：ERROR 1452
 
 這組關聯中 P001 存在，但 D999 不存在：
 
@@ -209,7 +261,7 @@ ERROR 1452
 
 不要關閉 `FOREIGN_KEY_CHECKS`，也不要使用 `INSERT IGNORE` 或 `REPLACE` 把錯誤藏起來。
 
-### 7. 回滾練習資料
+### 8. 回滾練習資料
 
 成功路徑最後執行：
 
@@ -237,6 +289,15 @@ practice_links_06 表仍存在
 
 這延續 Ch5：DDL 建立表；本節 DML 新增資料。`COMMIT` 雖然本節不執行，但在正式資料操作中代表「確認並保存」交易。
 
+
+![image](https://hackmd.io/_uploads/HyjzHFR5Mg.png)
+
+![image](https://hackmd.io/_uploads/ByvSBtRqGx.png)
+
+![image](https://hackmd.io/_uploads/BJjwrYA5Gl.png)
+
+![image](https://hackmd.io/_uploads/r1VtHtRqfg.png)
+
 ---
 
 ## Workshop
@@ -247,10 +308,11 @@ practice_links_06 表仍存在
 
 1. 建立本節的 `practice_documents_06` 與 `practice_links_06`。
 2. 在一個交易中新增 D901「課堂連線草稿」與 D902「課堂配對草稿」。
-3. 新增 P001/D901、P002/D901、P001/D902 三組關聯。
-4. 每次 `INSERT` 後立即執行 `ROW_COUNT()`，再用 `SELECT` 查回資料。
-5. 分別執行重複配對與不存在父資料的錯誤測試。
-6. 最後 `ROLLBACK`，確認練習資料列為 0。
+3. 新增 D901／D902，比較 `NULL` 與空字串，並查詢 `missing_note`。
+4. 新增 P001/D901、P002/D901、P001/D902 三組關聯。
+5. 每次 `INSERT` 後立即執行 `ROW_COUNT()`，再用 `SELECT` 查回資料。
+6. 分別執行重複配對與不存在父資料的錯誤測試。
+7. 最後 `ROLLBACK`，確認練習資料列為 0。
 
 ### 預期輸出
 
@@ -272,7 +334,7 @@ missing parent: ERROR 1452
 
 提交：
 
-- 新增文件與關聯的 SQL
+- 新增文件、NULL／空字串與關聯的 SQL
 - `ROW_COUNT()` 與實際查詢結果
 - `ERROR 1062` 與 `ERROR 1452` 的錯誤摘要
 - `ROLLBACK` 後的資料筆數
