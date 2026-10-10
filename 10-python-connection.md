@@ -1,0 +1,328 @@
+# 10 Python 連線：先確認身分，再查一筆資料
+
+> **定位**：用私人設定檔建立最小權限的 Python 連線，確認資料庫身分與 checkpoint，並正確關閉資源。
+
+## 學習目標
+
+完成本節後，你應該能夠：
+
+- 使用 `course_app` 設定檔建立 MariaDB 連線
+- 不把密碼寫入程式、命令列或交件
+- 用 `DATABASE()`、`CURRENT_USER()` 與資料集版本確認環境
+- 分辨 connection、cursor 與查詢結果
+- 在成功與例外時正確關閉資源
+- 分辨查無資料和連線／設定檔錯誤
+
+## 範例程式碼
+
+- [公開 demo repo](https://github.com/4-learn/mariadb-demo)：教師示範與學生練習。
+- [Workshop repo](https://github.com/4-learn/mariadb-workshop)：目前為私有考試題庫；課程結束後會公開，請保留此連結。
+
+本節程式需要在課程資料夾執行，並使用 `PYTHONPATH=.` 找到共用的 `course_db.py`。
+
+---
+
+## 情境
+
+客服已能用 SQL 查詢產品，現在要做一個 Python 查詢工具。
+
+程式沒有報錯，不代表查到正確資料庫。它可能：
+
+```text
+連到錯的 database
+使用錯的帳號
+讀到錯的資料集版本
+沒有關閉 connection 或 cursor
+```
+
+所以第一個 Python 功能不是新增資料，而是輸出可以核對的環境證據。
+
+本節只讀取資料，不修改正式 checkpoint。
+
+---
+
+## 講解
+
+### 1. 準備 Python Connector
+
+`course_db.py` 會載入 MariaDB Connector/Python；MariaDB server 已存在，但 Python 套件仍需在自己的 VM 安裝一次。
+
+先在 Ubuntu 安裝編譯依賴：
+
+```bash
+sudo apt update
+sudo apt install -y build-essential pkg-config libmariadb-dev python3-dev python3-venv
+```
+
+建立本課專用虛擬環境：
+
+```bash
+python3 -m venv "$HOME/mariadb-course-venv"
+. "$HOME/mariadb-course-venv/bin/activate"
+python -m pip install --upgrade pip
+python -m pip install mariadb==1.1.14
+```
+
+確認 Connector 可以載入：
+
+```bash
+python -c 'import mariadb; print(mariadb.__version__)'
+```
+
+之後每次上課先啟用環境：
+
+```bash
+. "$HOME/mariadb-course-venv/bin/activate"
+```
+
+若直接執行 `python3 course_db.py check` 出現 `ModuleNotFoundError`，通常就是尚未啟用這個虛擬環境或尚未安裝 `mariadb` 套件。
+
+### 2. 確認自己的私人設定檔
+
+你在自己的 Ubuntu VM 執行 `prepare_workshop.py` 後，腳本會在本機建立：
+
+```text
+$HOME/mariadb-course-app.json
+```
+
+這不是老師共用的設定檔。每位學生的 VM 都有自己的：
+
+```text
+course_app 帳號
+course_app 密碼
+mariadb_workshop_2026
+MariaDB Unix socket
+```
+
+設定檔的格式應包含四個鍵：
+
+```json
+{
+  "user": "course_app",
+  "password": "本機 prepare_workshop.py 建立的密碼",
+  "database": "mariadb_workshop_2026",
+  "unix_socket": "本機 MariaDB 的絕對 socket 路徑"
+}
+```
+
+以上只是欄位說明，不要把中文佔位文字當成實際值。學生應使用自己 VM 產生的設定檔，不要向老師索取、複製其他同學或使用老師的設定檔。
+
+先確認檔案權限，不要顯示內容：
+
+```bash
+stat -c '%a %n' "$HOME/mariadb-course-app.json"
+```
+
+預期權限：
+
+```text
+600
+```
+
+### 3. 使用 course_app 建立連線
+
+在 `mariadb-demo` 根目錄執行：
+
+```bash
+python3 course_db.py check
+```
+
+`course_db.py` 位於公開 demo repo 根目錄；不要只下載 `demo/10-connection.py` 這個單一檔案。
+
+或執行公開 demo：
+
+```bash
+PYTHONPATH=. python3 demo/10-connection.py
+```
+
+Python 程式會從私人設定檔取得連線資訊，不把密碼寫在 SQL 或 Python 原始碼中。
+
+這一章使用：
+
+```text
+course_app@localhost
+```
+
+不是 root，也不是 `course_editor`。
+
+### 4. connection、cursor 與結果
+
+最小查詢範例：
+
+```python
+from contextlib import closing
+from course_db import connect
+
+with closing(connect()) as conn:
+    with closing(conn.cursor()) as cur:
+        cur.execute(
+            "SELECT DATABASE(), CURRENT_USER(), @@autocommit"
+        )
+        print(cur.fetchone())
+```
+
+這段範例已整理成公開 demo repo 的檔案：
+
+```text
+demo/10-minimal-query.py
+```
+
+在 `mariadb-demo` 根目錄執行：
+
+```bash
+PYTHONPATH=. python3 demo/10-minimal-query.py
+```
+
+預期：
+
+```text
+('mariadb_workshop_2026', 'course_app@localhost', 1)
+```
+
+三個角色：
+
+```text
+connection：與 MariaDB server 的工作階段
+cursor：執行 SQL、取得結果
+fetchone()：取回一列結果
+```
+
+`closing(...)` 會在離開區塊時呼叫 `.close()`；即使區塊中發生例外，也會關閉已建立的資源。
+
+### 5. 核對 checkpoint
+
+```bash
+python3 course_db.py check
+```
+
+標準結果應包含：
+
+```json
+{
+  "account": "course_app@localhost",
+  "autocommit": 1,
+  "chunks": 16,
+  "database": "mariadb_workshop_2026",
+  "documents": 8,
+  "products": 12,
+  "versions": ["products-v1", "sop-v1"]
+}
+```
+
+這些欄位一起證明：
+
+```text
+帳號正確
+資料庫正確
+autocommit 狀態正確
+資料筆數正確
+資料集版本正確
+```
+
+### 6. 查詢一筆產品
+
+```bash
+python3 course_db.py get P001
+```
+
+P001 應是：
+
+```text
+name：教學感測器 A
+category_id：1
+price：800.00
+stock：10
+status：active
+```
+
+Python 內部的金額使用 `Decimal`；命令列輸出固定兩位小數。不要把金額轉成 `float`。
+
+### 7. 失敗不是空清單
+
+執行不存在的設定檔：
+
+```bash
+python3 course_db.py \
+  --config /nonexistent/course-app.json check
+printf '%s\n' "$?"
+```
+
+預期：
+
+```text
+FileNotFoundError
+errno = 2
+exit code = 1
+```
+
+這和查不到產品不同：
+
+```text
+P999 不存在：查詢結果可以是 None
+設定檔不存在：程式錯誤，應回報例外
+```
+
+不要把設定檔錯誤、權限錯誤或 socket 連線錯誤顯示成「查無資料」。
+
+### 8. autocommit 先認識即可
+
+本節會讀出：
+
+```text
+@@autocommit = 1
+```
+
+這表示一般 DML 通常會自動提交。本節不做寫入，也不在這裡深入交易控制；`BEGIN`、`COMMIT`、`ROLLBACK` 會在 Ch12 完整介紹。
+
+---
+
+## Workshop
+
+### 題目
+
+在自己的 VM 完成：
+
+1. 啟用本課 Python 虛擬環境，確認 `mariadb` Connector 可以載入。
+2. 檢查 `mariadb-course-app.json` 權限為 600，不提交檔案內容。
+3. 執行 checkpoint，確認 database、account、autocommit、版本與三個資料數量。
+4. 查詢 P001，核對名稱、分類、價格、庫存與狀態。
+5. 用不存在的設定檔執行一次，保存退出碼與不含秘密的錯誤摘要。
+6. 說明 connection、cursor 的關閉責任，以及為什麼 connect 失敗時不能關閉不存在的 connection。
+
+### 預期輸出
+
+```text
+account = course_app@localhost
+database = mariadb_workshop_2026
+autocommit = 1
+products = 12
+documents = 8
+chunks = 16
+versions = products-v1, sop-v1
+P001 price = 800.00
+connection closed
+```
+
+負面測試：
+
+```text
+FileNotFoundError
+errno = 2
+exit code = 1
+```
+
+### 交件
+
+提交：
+
+- checkpoint 結果
+- P001 查詢結果
+- 設定檔權限結果
+- 負面測試的錯誤類型與退出碼
+- 資源關閉責任的說明
+
+不要提交密碼、私人設定檔內容或完整 socket 設定。
+
+### 解答
+
+- [Workshop repo](https://github.com/4-learn/mariadb-workshop)：目前為私有考試題庫；課程結束後會公開，請保留此連結。
