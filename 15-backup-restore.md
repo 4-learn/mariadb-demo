@@ -140,43 +140,33 @@ mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" \
 
 ### 3. 執行 `mariadb-dump`
 
-先用一個完整但可讀的命令建立備份：
+先教最小可用的備份命令：
 
 ```bash
-mariadb-dump --defaults-file="$HOME/mariadb-course-editor.cnf" \
-  --default-character-set=utf8mb4 \
-  --skip-add-drop-table \
-  --skip-add-locks \
-  --skip-lock-tables \
-  --no-tablespaces \
-  --skip-triggers \
+mariadb-dump \
+  --defaults-file="$HOME/mariadb-course-editor.cnf" \
   --single-transaction \
-  --skip-comments \
-  --skip-dump-date \
-  --skip-extended-insert \
-  --order-by-primary \
-  --hex-blob \
-  "$source_db" "${tables[@]}" > "$backup_dir/core.sql"
+  "$source_db" categories products course_meta documents product_documents chunks \
+  > "$backup_dir/core.sql"
 ```
 
-參數重點：
+這段命令的重點只有四個：
 
-| 參數 | 白話意思 |
+| 部分 | 白話意思 |
 |---|---|
+| `mariadb-dump` | MariaDB 的備份工具，把資料輸出成 SQL 檔案 |
+| `--defaults-file=...` | 使用課程帳號設定檔連線，不在命令列輸入密碼 |
 | `--single-transaction` | 對 InnoDB 建立一致性的讀取快照 |
-| `--no-tablespaces` | 不輸出 tablespace 資訊，減少權限需求 |
-| `--skip-triggers` | 本章備份範圍不包含 triggers |
-| `--skip-extended-insert` | 每筆資料分開寫，方便閱讀與比對 |
-| `--order-by-primary` | 依主鍵順序輸出資料，讓比較更穩定 |
-| `--skip-dump-date` | 不把當下時間寫入 dump，避免每次檔案不同 |
-| `--skip-add-drop-table` | 不在檔案中加入自動刪表指令 |
-| `--hex-blob` | 以安全格式輸出 binary 欄位 |
+| 資料庫名稱與表名 | 指定要備份哪個資料庫、哪些資料表 |
+| `>` | 把命令輸出寫入 `core.sql` |
 
-確認備份檔不是空的：
+先確認備份檔不是空的：
 
 ```bash
 test -s "$backup_dir/core.sql"
 ```
+
+本節先不要求背誦其他輸出格式參數。公開的 `demo/15-backup-restore.sh` 為了讓備份檔可以穩定比較，會額外使用一些參數；那些是自動驗收工具的實作細節，不是本節核心。
 
 ### 4. 建立與驗證 checksum
 
