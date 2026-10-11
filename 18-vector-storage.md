@@ -37,7 +37,7 @@ with connect() as conn:
 
 ## 3. 固定 Agent prompt
 
-> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將上述完整程式寫入 `/tmp/ch18_storage.py` 並執行；不得加 placeholders、拼接 SQL、修改 artifact 或讀 HackMD/repos。回報 stdout、stderr、實際 exit code。
+> 你現在在 `~/workspace/mariadb-demo`。請完成整個 Ch18 Workshop，不要只執行第一段 Python：\n> 1. 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將完整 code section 原樣寫入 `/tmp/ch18_storage.py` 並執行。\n> 2. 依序執行 `demo/18-vector-storage.sql`、`vector_course.py ingest`、`vector_course.py check`。\n> 3. 執行下方 SQL，確認 `vector_count=16`、`mismatches=0`。\n> 不得加 placeholders、拼接 SQL、修改 artifact 或讀 HackMD/repos。每一步都回報實際命令、stdout、stderr、exit code；任何一步失敗都保留真實錯誤，不要假裝成功。
 
 ## 4. 執行與 SQL 驗證
 

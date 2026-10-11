@@ -17,13 +17,23 @@ with connect() as conn:
 ```
 
 ## Agent prompt
-> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，寫入並執行 `/tmp/ch18_storage.py`；不可 placeholders、拼 SQL、讀 HackMD/repos。回報 stdout/stderr/實際 exit code。
+> 你現在在 `~/workspace/mariadb-demo`。請完成整個 Ch18 Workshop，不要只執行第一段 Python：
+> 1. 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將完整 code section 原樣寫入 `/tmp/ch18_storage.py` 並執行。
+> 2. 依序執行 `demo/18-vector-storage.sql`、`vector_course.py ingest`、`vector_course.py check`。
+> 3. 執行下方 SQL，確認 `vector_count=16`、`mismatches=0`。
+> 不得加 placeholders、拼接 SQL、修改 artifact 或讀 HackMD/repos。每一步都回報實際命令、stdout、stderr、exit code；任何一步失敗都保留真實錯誤，不要假裝成功。
 
 ```bash
+# 1. code section
 PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch18_storage.py; rc=$?; echo "code_exit_code=$rc"
-python vector_course.py ingest --artifact "$HOME/mariadb-vectors.json"; rc=$?; echo "ingest_exit_code=$rc"
-python vector_course.py check; rc=$?; echo "check_exit_code=$rc"
-mariadb mariadb_workshop_2026 -e "SELECT COUNT(*) FROM chunk_vectors; SELECT COUNT(*) FROM chunks c JOIN chunk_vectors v USING(chunk_id) WHERE c.source_version<>v.source_version OR BINARY c.content_hash<>BINARY v.content_hash;"
+# 2. 建立向量表（使用 course_editor）
+mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/18-vector-storage.sql; rc=$?; echo "ddl_exit_code=$rc"
+# 3. 寫入 artifact（使用課程 venv）
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python vector_course.py ingest --artifact "$HOME/mariadb-vectors.json"; rc=$?; echo "ingest_exit_code=$rc"
+# 4. 執行完整性檢查
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python vector_course.py check; rc=$?; echo "check_exit_code=$rc"
+# 5. SQL 交叉驗證
+mariadb --defaults-file="$HOME/mariadb-course-app.cnf" mariadb_workshop_2026 -e "SELECT COUNT(*) AS vector_count FROM chunk_vectors; SELECT COUNT(*) AS mismatches FROM chunks c JOIN chunk_vectors v USING(chunk_id) WHERE c.source_version<>v.source_version OR BINARY c.content_hash<>BINARY v.content_hash;"
 ```
 
 預期 16、0、check 0；重跑 ingest 應非零且資料不變。附 SQL、stdout/stderr 與 exit code。
