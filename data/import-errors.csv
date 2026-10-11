@@ -1,0 +1,6 @@
+product_id,category_id,name,price,stock,status
+P940,1,正常產品,100.00,2,active
+P940,2,重複編號,200.00,1,active
+P942,99,未知分類,300.00,1,active
+P943,1,,400.00,1,active
+P944,1,\N,500.00,1,active
