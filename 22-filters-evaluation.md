@@ -1,8 +1,8 @@
-# 21 篩選與評估：找到相似段落，還不等於可用答案
+# 22 篩選與評估：找到相似段落，還不等於可用答案
 
 > **定位**：先形成不重複的合格 chunk 集合，再以人工相關標註檢查同義詞、否定、型號及無答案案例。
 
-[上一節](20-ann.md) · [下一節](22-consistency.md)
+[上一節](21-ann.md) · [下一節](23-consistency.md)
 
 
 ## 學習目標
@@ -13,8 +13,8 @@
 
 ## 範例程式碼
 
-- [合格集合 SQL](demo/21-filters-evaluation.sql)、[評估程式](vector_course.py)。
-- [八題標註與理由](data/search_cases.json)、[本節解答](workshop/21-filters-evaluation.md)。
+- [合格集合 SQL](demo/22-filters-evaluation.sql)、[評估程式](vector_course.py)。
+- [八題標註與理由](data/search_cases.json)、[本節解答](workshop/22-filters-evaluation.md)。
 
 ---
 
@@ -115,4 +115,9 @@ Q08: rows=[]
 
 ### 解答
 
-[21 Workshop 解答](workshop/21-filters-evaluation.md)。只有「功能回傳了文字」不算通過，必須能指出資格、相關性和使用限制。
+[21 Workshop 解答](workshop/22-filters-evaluation.md)。只有「功能回傳了文字」不算通過，必須能指出資格、相關性和使用限制。
+
+
+## Agent 操作與驗證
+
+請先要求 Agent 說明命令與預期變更，確認後才執行；完成後自行核對 exit code、實際輸出與資料庫證據。

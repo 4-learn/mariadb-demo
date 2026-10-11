@@ -1,8 +1,8 @@
-# 24 增量驗收：成功、失敗與還原都要有證據
+# 25 增量驗收：成功、失敗與還原都要有證據
 
 > **定位**：不另造大型專案，對既有搜尋工具執行可重現的增量驗收，區分模型觀察、資料正確性與尚未驗證事項。
 
-[上一節](23-integration.md) · [模組作業](homework/22-search.md)
+[上一節](24-integration.md) · [模組作業](homework/23-search.md)
 
 
 ## 學習目標
@@ -13,9 +13,9 @@
 
 ## 範例程式碼
 
-- [實際驗收腳本](demo/24-acceptance.py)、[搜尋與交易 API](vector_course.py)。
-- [一致性 SQL](demo/22-consistency.sql)、[八題 qrels](data/search_cases.json)。
-- [驗收紀錄解答](workshop/24-acceptance.md)。
+- [實際驗收腳本](demo/25-acceptance.py)、[搜尋與交易 API](vector_course.py)。
+- [一致性 SQL](demo/23-consistency.sql)、[八題 qrels](data/search_cases.json)。
+- [驗收紀錄解答](workshop/25-acceptance.md)。
 
 ---
 
@@ -49,7 +49,7 @@
 ```bash
 python embedding_course.py validate --artifact "$HOME/mariadb-vectors.json"
 python vector_course.py check
-python demo/24-acceptance.py --artifact "$HOME/mariadb-vectors.json"
+python demo/25-acceptance.py --artifact "$HOME/mariadb-vectors.json"
 ```
 
 腳本先核對原始 baseline，再做維度／revision／source 篡改拒絕、分類與唯一性、實際 EXPLAIN、八題評估，最後才開始 D001 寫入測試。錯誤會非零退出，不用 `--force` 或忽略 exception 繼續印成功。
@@ -117,4 +117,9 @@ EXPLAIN：附實際計畫，不用教材猜測
 
 ### 解答
 
-[24 Workshop 解答](workshop/24-acceptance.md)。完成本節表示能交出可核對的增量證據，不代表已通過正式上線安全或大規模效能審查。
+[24 Workshop 解答](workshop/25-acceptance.md)。完成本節表示能交出可核對的增量證據，不代表已通過正式上線安全或大規模效能審查。
+
+
+## Agent 操作與驗證
+
+請先要求 Agent 說明命令與預期變更，確認後才執行；完成後自行核對 exit code、實際輸出與資料庫證據。
