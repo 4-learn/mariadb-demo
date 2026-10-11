@@ -34,7 +34,7 @@ with connect() as conn:
 
 ## 3. 固定 Agent prompt
 
-> 使用 `/usr/bin/python3`、`PYTHONPATH="$PWD"`，把完整程式寫入 `/tmp/ch22_consistency.py` 後執行；不得 TODO、忽略版本衝突或讀 HackMD/repos。先取得 before snapshot，再回報 stdout、stderr 與實際 exit code；故障注入用 CLI，不把例外當成功。
+> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，把完整程式寫入 `/tmp/ch22_consistency.py` 後執行；不得 placeholders、忽略版本衝突或讀 HackMD/repos。先取得 before snapshot，再回報 stdout、stderr 與實際 exit code；故障注入用 CLI，不把例外當成功。
 
 ## 4. 執行、快照與驗收
 
@@ -42,7 +42,7 @@ with connect() as conn:
 python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1 --fail-after-first; rc=$?; echo "failure_exit_code=$rc"
 python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1; rc=$?; echo "success_exit_code=$rc"
 python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1; rc=$?; echo "stale_exit_code=$rc"
-PYTHONPATH="$PWD" /usr/bin/python3 /tmp/ch22_consistency.py; rc=$?; echo "code_exit_code=$rc"
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch22_consistency.py; rc=$?; echo "code_exit_code=$rc"
 ```
 
 ```sql

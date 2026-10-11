@@ -1,22 +1,29 @@
 # 21 篩選與評估 Workshop
 
-## 任務
+## 概念
+`EXISTS` 先形成唯一合格集合，再用獨立 qrels 評估；相似度不能替代型號與安全條件。
 
-先執行主課 SQL，再使用同一 code section。可自己完成或請 Agent 補 TODO；你必須核對實際 IDs 與 qrels。
-
+## 完整程式 `/tmp/ch21_eval.py`
 ```python
+import os
 from pathlib import Path
-from vector_course import evaluate, search
-
-artifact_path = Path.home() / "mariadb-vectors.json"
-# TODO 1：執行 Q01 的 exact top-k，保留實際唯一 IDs。
-q01_rows = None
-# TODO 2：執行 Q08，確認 category=999 不跨分類補滿。
-q08_rows = None
-print("Q01 =", [r["chunk_id"] for r in q01_rows])
-print("Q08 =", [r["chunk_id"] for r in q08_rows])
+from embedding_course import load_artifact,recorded_query
+from course_db import connect
+from vector_course import search,evaluate
+a=load_artifact(Path(os.environ.get("VECTOR_ARTIFACT",str(Path.home()/"mariadb-vectors.json"))))
+for q in ("Q01","Q08"):
+ case,v=recorded_query(a,q)
+ with connect() as conn: rows=search(conn,v,k=3,category_id=case["category_id"],mode="exact")
+ print(q,[r["chunk_id"] for r in rows])
+print(evaluate(a,k=3))
 ```
 
-## 執行與驗收
+## Agent prompt
+> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"` 執行 `/tmp/ch21_eval.py`；不得 placeholders、由排名反推 qrels、改分類或讀 HackMD/repos。回報 stdout/stderr/實際 exit code。
 
-分類 1 應十個唯一 chunk；Q08 應零列；Q03/Q04 保留不同 qrels 與實際候選。填寫 Q01 的 `|R∩S|/3` 與 `|R∩S|/|R|`，R 空時記 null。未命中、回傳候選或否定文字都要如實保留，不為了平均分數修改標註。
+```bash
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch21_eval.py; rc=$?; echo "exit_code=$rc"
+python vector_course.py evaluate --artifact "$HOME/mariadb-vectors.json" --k 3; rc=$?; echo "evaluate_exit_code=$rc"
+mariadb mariadb_workshop_2026 -e "SELECT COUNT(*) FROM chunks c JOIN documents d ON d.document_id=c.document_id WHERE d.status='active' AND EXISTS (SELECT 1 FROM product_documents pd JOIN products p ON p.product_id=pd.product_id WHERE pd.document_id=d.document_id AND p.status='active' AND p.category_id=999);"
+```
+記錄 category 1 集合、Q01/Q08、八題結果、空 qrels 的 NULL precision/recall 與所有退出碼。

@@ -35,12 +35,12 @@ assert all(rows[i]["distance"] <= rows[i+1]["distance"] for i in range(len(rows)
 
 ## 3. 固定 Agent prompt
 
-> 使用 `/usr/bin/python3`、`PYTHONPATH="$PWD"`，把完整程式寫入 `/tmp/ch19_ranking.py` 後執行；不得 TODO、手動重排、改 qrels 或讀 HackMD/repos。回報實際輸出與 exit code。
+> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，把完整程式寫入 `/tmp/ch19_ranking.py` 後執行；不得 placeholders、手動重排、改 qrels 或讀 HackMD/repos。回報實際輸出與 exit code。
 
 ## 4. 執行、EXPLAIN 與驗收
 
 ```bash
-PYTHONPATH="$PWD" /usr/bin/python3 /tmp/ch19_ranking.py; rc=$?; echo "exit_code=$rc"
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch19_ranking.py; rc=$?; echo "exit_code=$rc"
 python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --mode exact --k 3 --explain; rc=$?; echo "exit_code=$rc"
 ```
 

@@ -17,10 +17,10 @@ with connect() as conn:
 ```
 
 ## Agent prompt
-> 使用 `/usr/bin/python3`、`PYTHONPATH="$PWD"`，寫入並執行 `/tmp/ch18_storage.py`；不可 TODO、拼 SQL、讀 HackMD/repos。回報 stdout/stderr/實際 exit code。
+> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，寫入並執行 `/tmp/ch18_storage.py`；不可 placeholders、拼 SQL、讀 HackMD/repos。回報 stdout/stderr/實際 exit code。
 
 ```bash
-PYTHONPATH="$PWD" /usr/bin/python3 /tmp/ch18_storage.py; rc=$?; echo "code_exit_code=$rc"
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch18_storage.py; rc=$?; echo "code_exit_code=$rc"
 python vector_course.py ingest --artifact "$HOME/mariadb-vectors.json"; rc=$?; echo "ingest_exit_code=$rc"
 python vector_course.py check; rc=$?; echo "check_exit_code=$rc"
 mariadb mariadb_workshop_2026 -e "SELECT COUNT(*) FROM chunk_vectors; SELECT COUNT(*) FROM chunks c JOIN chunk_vectors v USING(chunk_id) WHERE c.source_version<>v.source_version OR BINARY c.content_hash<>BINARY v.content_hash;"
