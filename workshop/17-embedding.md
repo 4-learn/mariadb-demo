@@ -1,4 +1,4 @@
-# 18 Embedding Workshop
+# 17 Embedding Workshop
 
 ## 情境
 
@@ -46,7 +46,7 @@ artifact 16 chunks + 8 recorded queries + 2 updated chunks
 ## 你需要實作的功能
 
 ```bash
-python demo/18-embedding.py --offline
+python demo/17-embedding.py --offline
 python embedding_course.py validate --artifact "$HOME/mariadb-vectors.json"
 ```
 
@@ -75,8 +75,3 @@ print(a["source_hash"], a["metadata"], a["provenance"]["packages"])
 512 維只代表相同長度，不代表相同模型空間；必須連 revision、pooling、normalization 與 query instruction 一起固定。模型卡建議檢索問題加 instruction、段落不加，故兩條處理路徑不同。
 
 通過：實際 encode 並核對 norm，或明示只驗證教師產物；後者不宣稱本機已跑模型。失敗：用隨機數、抄另一題向量、忽略模型版本，或把離線下載錯誤記成成功。
-
-
-## Agent 操作與驗證
-
-請先要求 Agent 說明命令與預期變更，確認後才執行；完成後自行核對 exit code、實際輸出與資料庫證據。

@@ -1,4 +1,4 @@
-# 24 CLI 串接 Workshop
+# 23 CLI 串接 Workshop
 
 ## 情境
 
@@ -42,7 +42,7 @@ notice: 候選不代表答案
 ## 你需要實作的功能
 
 ```bash
-python demo/24-integration.py --artifact "$HOME/mariadb-vectors.json" --case Q01
+python demo/23-integration.py --artifact "$HOME/mariadb-vectors.json" --case Q01
 python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q05
 python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q08
 python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q99
@@ -54,15 +54,10 @@ demo 的欄位名為 embedding_mode，完整 CLI 為 query.mode；兩者都要�
 
 ## 解答
 
-小型完整程式在 demo/24-integration.py：載入 artifact、找 case、connect、search、print JSON、finally close。主 CLI 還提供 live-model、filter 覆寫及 EXPLAIN。
+小型完整程式在 demo/23-integration.py：載入 artifact、找 case、connect、search、print JSON、finally close。主 CLI 還提供 live-model、filter 覆寫及 EXPLAIN。
 
 Q05：P010 沒有 SOP 關聯，其他感測器原文不能當作 H 的專用操作。這次工具是候選檢索，不是已完成型號約束或拒答判定的問答機器。
 
 Q08：category 999 在 SQL eligibility 階段排除全部段落，rows 應為 []。不能換成未篩選結果讓畫面看起來有內容。
 
 Q99：必須明確 ValueError 且非零退出。live-model 缺快取也應如實失敗；學生仍可交固定八題的演示，但成果不能寫「支援任意離線問題」。
-
-
-## Agent 操作與驗證
-
-請先要求 Agent 說明命令與預期變更，確認後才執行；完成後自行核對 exit code、實際輸出與資料庫證據。

@@ -1,4 +1,4 @@
-# 19 向量入庫 Workshop
+# 18 向量入庫 Workshop
 
 ## 情境
 
@@ -39,7 +39,7 @@ consistent: true
 ## 你需要實作的功能
 
 ```bash
-mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/19-vector-storage.sql
+mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/18-vector-storage.sql
 python vector_course.py ingest --artifact "$HOME/mariadb-vectors.json"
 python vector_course.py check
 ```
@@ -66,8 +66,3 @@ WHERE c.source_version<>d.source_version
 维度錯誤由 `validate_vector` 擋下；存在但不是同一模型的 512 維向量，靠 metadata 契約擋下；原文被修改，靠 hash／baseline 比對擋下。外鍵只解決「段落是否存在」，不能代替這三件事。
 
 重跑拒絕後再執行 check 和 SQL，應與原來相同。若重跑把某些向量改掉，即使最後仍 16 筆也失敗。
-
-
-## Agent 操作與驗證
-
-請先要求 Agent 說明命令與預期變更，確認後才執行；完成後自行核對 exit code、實際輸出與資料庫證據。

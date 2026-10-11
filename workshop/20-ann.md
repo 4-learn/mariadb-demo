@@ -1,4 +1,4 @@
-# 21 ANN Workshop
+# 20 ANN Workshop
 
 ## 情境
 
@@ -38,7 +38,7 @@ overlap: 實際 |A intersect E| / |E|
 ## 你需要實作的功能
 
 ```bash
-mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/21-ann.sql
+mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/20-ann.sql
 python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --mode exact --explain
 python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --mode ann --explain
 python vector_course.py evaluate --artifact "$HOME/mariadb-vectors.json" --k 3
@@ -55,8 +55,3 @@ hint 不等於實際計畫；ANN 內層不要加第二排序鍵破壞可用形�
 若某次實際 E、A 相同，只能說本次重合率 1。不能推論 ANN 永遠精確、資料放大後仍一樣、或較快。若 category 999 下 E 為空，重合率記 null，不除以零。
 
 失敗條件：ANN plan 沒用 vector_idx 卻稱通過；exact 用了 vector_idx；兩邊 category／k 不同；用單次小資料耗時宣稱模型或索引效能。
-
-
-## Agent 操作與驗證
-
-請先要求 Agent 說明命令與預期變更，確認後才執行；完成後自行核對 exit code、實際輸出與資料庫證據。

@@ -1,4 +1,4 @@
-# 22 篩選與評估 Workshop
+# 21 篩選與評估 Workshop
 
 ## 情境
 
@@ -38,7 +38,7 @@ D001 連兩個 active 產品；D003 inactive；D004 有一個 inactive 與一個
 ## 你需要實作的功能
 
 ```bash
-mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/22-filters-evaluation.sql
+mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/21-filters-evaluation.sql
 python vector_course.py evaluate --artifact "$HOME/mariadb-vectors.json" --k 3
 python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q08
 ```
@@ -56,8 +56,3 @@ Q05 的 P010 是文字中的產品要求，本課 category filter 不會自動�
 5. Q08 的合格集合空，SQL 應零列；Q03 的 qrels 空不代表 SQL 零列，需保留 `returned_on_no_answer`。
 
 通過條件不是八題都「滿分」，而是機制正確、結果可重算、失誤如實解釋。重複 chunk、混入 inactive、跨分類補 k 或用 distance 當百分比皆失敗。
-
-
-## Agent 操作與驗證
-
-請先要求 Agent 說明命令與預期變更，確認後才執行；完成後自行核對 exit code、實際輸出與資料庫證據。
