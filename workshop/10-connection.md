@@ -1,12 +1,10 @@
-# 10 Workshop：完成最小 Python 連線查詢
+# Ch10 Workshop：把完整 code section 交給 Agent 執行
 
-## 目標
+## 任務
 
-把主講義的兩個 code section TODO 補完，確認 Python 連線和 Ch5～9 已學的 SQL 查詢指向同一個 checkpoint。
+本章不要求你先補 Python。請先把主講義的完整 code section 貼給 Agent，要求它解釋並執行；也可以自己把程式存檔後執行。
 
 ## Code section
-
-請完成 `workshop/10-connection.py`：
 
 ```python
 from contextlib import closing
@@ -14,34 +12,28 @@ from course_db import connect
 
 with closing(connect()) as conn:
     with closing(conn.cursor()) as cur:
-        # TODO 1：執行身分與交易設定查詢，並把結果存到 identity。
-        identity = None
+        cur.execute(
+            "SELECT DATABASE(), CURRENT_USER(), @@autocommit"
+        )
+        identity = cur.fetchone()
 
-        # TODO 2：查詢 P001 的 product_id、name、price，並把結果存到 product。
-        product = None
+        cur.execute(
+            """
+            SELECT product_id, name, price
+            FROM products
+            WHERE product_id = ?
+            """,
+            ("P001",),
+        )
+        product = cur.fetchone()
 
         print(identity)
         print(product)
 ```
 
-## 完成方式 A：自己補完
+## 方式 A：自己執行
 
-使用主講義提示完成兩個 TODO。不要改 `course_db.py`、私人設定檔或正式資料。
-
-## 完成方式 B：要求 Agent 補完
-
-在 repo 根目錄啟動 Agent，貼上：
-
-```text
-請只修改 workshop/10-connection.py 的兩個 TODO，不要修改其他檔案，不要讀取私人設定檔。
-先說明每個 TODO 要執行的 SQL 與預期結果，等我確認後才修改。
-必須使用 SELECT、? 參數與 ("P001",) tuple，不得拼接 SQL。
-修改後列出 git diff，不要自行執行寫入資料庫的命令。
-```
-
-確認 diff 只包含兩個 TODO 的實作後，才執行。
-
-## 執行
+將程式存成 `workshop/10-connection.py`，不要修改 SQL，直接執行：
 
 ```bash
 . "$HOME/mariadb-course-venv/bin/activate"
@@ -50,34 +42,49 @@ PYTHONPATH=. python3 workshop/10-connection.py
 printf 'exit=%s\n' "$?"
 ```
 
-## 預期結果
+## 方式 B：請 Agent 執行
 
-應看到一列包含：
+把 code section 和以下任務一起貼給 Agent：
 
 ```text
-mariadb_workshop_2026
-course_app@localhost
-1
+請先用簡單中文說明這段程式會查詢什麼、會不會修改資料。
+不要修改檔案，不要讀取密碼或私人設定檔。
+接著在目前課程 repo 執行這段程式，回報實際輸出與 exit code。
 ```
 
-以及 P001 的 `product_id`、名稱與 `800.00`。實際 tuple 顯示形式可以依 Connector 版本不同，但資料內容必須正確。
+Agent 只需解釋與執行，不需要替你設計新程式。
 
-## SQL 交叉驗證
+## 驗證
 
-```bash
-mariadb --defaults-file="$HOME/mariadb-course-app.cnf" mariadb_workshop_2026
+預期內容類似：
+
+```text
+('mariadb_workshop_2026', 'course_app@localhost', 1)
+('P001', '教學感測器 A', Decimal('800.00'))
+exit=0
 ```
+
+再用 MariaDB client 交叉確認：
 
 ```sql
 SELECT DATABASE(), CURRENT_USER(), @@autocommit;
 SELECT product_id, name, price FROM products WHERE product_id = 'P001';
-SELECT COUNT(*) AS products FROM products;
+```
+
+確認：
+
+```text
+database 正確
+course_app@localhost 正確
+P001 價格為 800.00
+只有 SELECT，沒有修改資料
+沒有提交密碼或私人設定檔
 ```
 
 ## 交件
 
-- 完成方式：自己補完或 Agent 補完。
-- `git diff` 或修改前後的 code section。
-- Python exit code 與輸出。
+- 使用方式：自己執行或 Agent 執行。
+- 完整 code section。
+- 實際輸出與 exit code。
 - SQL 交叉驗證結果。
-- 不提交密碼、私人 JSON 或完整 socket 路徑。
+- 一句話說明 `execute()` 與 `fetchone()` 的用途。
