@@ -9,7 +9,7 @@
 - 依等值、範圍與排序條件安排複合索引欄位
 - 用 `EXPLAIN` 閱讀 `possible_keys`、`key`、`type` 與 `rows`
 - 分辨索引可用和查詢一定變快是兩件事
-- 理解最左前綴與索引的寫入維護成本
+- 比較索引與全表掃描的查詢路徑
 - 不用小資料表的一次耗時宣稱效能提升
 
 ## 範例程式碼
@@ -238,52 +238,6 @@ LIMIT 3;
 
 白話說：不使用索引時，MariaDB 估計要掃描整張表；讓 MariaDB 自己選擇時，改用索引範圍查找，估計只需查看較少的資料列，也不需要額外排序。實際 `rows` 會依資料量與 optimizer 判斷而變動，請以自己的輸出為準。
 
-### 4. 觀察最左前綴
-
-Workshop 也會比較只用價格的查詢：
-
-```sql
-EXPLAIN
-SELECT product_id, price
-FROM practice_index_products
-WHERE price BETWEEN 700 AND 1300
-ORDER BY price, product_id
-LIMIT 3;
-```
-
-索引第一欄是 `category_id`，省略它時就不是同樣的最左前綴查找。server 可能選全表或其他路徑；這不是索引損壞。
-
-索引也有成本：
-
-```text
-佔用空間
-INSERT 需要維護
-UPDATE 可能維護
-DELETE 也要維護
-```
-
-### 5. 驗證索引欄位順序與結果
-
-```sql
-SELECT INDEX_NAME, SEQ_IN_INDEX, COLUMN_NAME
-FROM information_schema.STATISTICS
-WHERE TABLE_SCHEMA = DATABASE()
-  AND TABLE_NAME = 'practice_index_products'
-  AND INDEX_NAME = 'idx_practice_category_status_price'
-ORDER BY SEQ_IN_INDEX;
-```
-
-應看到：
-
-```text
-1 category_id
-2 status
-3 price
-4 product_id
-```
-
-加不加索引都必須得到相同的前三筆資料。索引不能修補漏掉 `WHERE` 或錯誤的排序條件。
-
 ---
 
 ## Workshop
@@ -293,11 +247,10 @@ ORDER BY SEQ_IN_INDEX;
 在自己的 VM 完成：
 
 1. 執行 `demo/14-indexes.sql`，建立隔離練習表與索引。
-2. 執行 `workshop/14-indexes.sql`，保存 optimizer 自由選擇與最左前綴查詢的實際 plan。
+2. 執行 `workshop/14-indexes.sql`，保存 optimizer 自由選擇與查詢結果。
 3. 比較兩種 plan 的 `key`、`type`、`rows`。
-4. 核對查詢前三筆相同，並列出索引四欄順序。
-5. 閱讀只使用 `price` 的變形查詢，說明最左前綴限制。
-6. 寫一句保守結論，不使用「有索引一定比較快」。
+4. 核對查詢前三筆相同。
+5. 寫一句保守結論，不使用「有索引一定比較快」。
 
 執行：
 
@@ -317,12 +270,6 @@ P002  1200.00
 P008  1250.00
 ```
 
-索引順序：
-
-```text
-category_id, status, price, product_id
-```
-
 EXPLAIN 的 `rows` 依環境而定；要求保存實際值。兩種 SELECT 的結果語意相同，但執行計畫可能不同。
 
 ### 交件
@@ -331,8 +278,6 @@ EXPLAIN 的 `rows` 依環境而定；要求保存實際值。兩種 SELECT 的�
 
 - 兩種 EXPLAIN 的實際輸出
 - 兩種查詢的前三筆結果
-- 索引欄位順序
-- 只用 price 的 plan 說明
 - 一句保守的效能結論
 
 不要讓 `course_app` 建索引，不要修改正式 `products`，不要提交私人設定檔。
