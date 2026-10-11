@@ -147,6 +147,8 @@ mariadb-dump \
   --defaults-file="$HOME/mariadb-course-editor.cnf" \
   --single-transaction \
   --skip-add-drop-table \
+  --skip-add-locks \
+  --skip-lock-tables \
   "$source_db" categories products course_meta documents product_documents chunks \
   > "$backup_dir/core.sql"
 ```
@@ -159,6 +161,8 @@ mariadb-dump \
 | `--defaults-file=...` | 使用課程帳號設定檔連線，不在命令列輸入密碼 |
 | `--single-transaction` | 對 InnoDB 建立一致性的讀取快照 |
 | `--skip-add-drop-table` | 不在備份檔加入刪除資料表的指令，避免還原需要 `DROP` 權限 |
+| `--skip-add-locks` | 不在備份檔加入 `LOCK TABLES` 指令 |
+| `--skip-lock-tables` | 備份時不使用資料表鎖定，配合本課的 InnoDB 交易快照 |
 
 用下面的圖理解「快照」：
 
@@ -175,7 +179,7 @@ flowchart LR
 | 資料庫名稱與表名 | 指定要備份哪個資料庫、哪些資料表 |
 | `>` | 把命令輸出寫入 `core.sql` |
 
-因為 `course_editor` 沒有 `DROP` 權限，本課必須使用 `--skip-add-drop-table`。如果先前已經用舊命令產生 `core.sql`，請重新產生備份檔，不要直接重複還原舊檔：
+因為 `course_editor` 沒有 `DROP` 與資料表鎖定權限，本課必須使用 `--skip-add-drop-table`、`--skip-add-locks` 與 `--skip-lock-tables`。如果先前已經用舊命令產生 `core.sql`，請重新產生備份檔，不要直接重複還原舊檔：
 
 ```bash
 rm -f "$backup_dir/core.sql" "$backup_dir/core.sql.sha256" "$backup_dir/restored.sql"
