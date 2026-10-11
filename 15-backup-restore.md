@@ -320,6 +320,33 @@ restore database must be empty; no DROP attempted
 
 ---
 
+## 每次上課前：教師重設還原庫
+
+`demo/15-backup-restore.sh` 會把資料還原到 `mariadb_restore_2026`。成功一次後，這個資料庫就不再是空的；下一次上課前，教師必須先重設它。
+
+這個動作會刪除並重新建立還原資料庫，只能由教師或 Ubuntu 管理者執行：
+
+```bash
+cd ~/workspace/mariadb-demo
+sudo bash demo/15-reset-restore-db.sh
+```
+
+腳本會要求輸入：
+
+```text
+RESET mariadb_restore_2026
+```
+
+成功後應看到：
+
+```text
+RESET OK: mariadb_restore_2026 is empty and ready for Ch15
+```
+
+學生不要自行修改 `course_editor` 權限，也不要用 `DROP DATABASE` 清理資料。
+
+---
+
 ## Workshop
 
 ### 題目
