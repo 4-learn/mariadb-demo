@@ -1,8 +1,8 @@
-# 17 Embedding：讓文字成為可比較的數字
+# 18 Embedding：讓文字成為可比較的數字
 
 > **定位**：用固定的中文模型將 SOP 與問題編成 512 維向量，保留來源及版本，不把相似度當答案。
 
-[上一節](16-import-quality.md) · [下一節](18-vector-storage.md)
+[上一節](16-import-quality.md) · [下一節](19-vector-storage.md)
 
 
 ## 學習目標
@@ -13,7 +13,7 @@
 
 ## 範例程式碼
 
-- [模型與 artifact 程式](embedding_course.py)、[小型 encode 示範](demo/17-embedding.py)。
+- [模型與 artifact 程式](embedding_course.py)、[小型 encode 示範](demo/18-embedding.py)。
 - [固定 SOP corpus](data/sop_corpus.json)、[八筆人工判讀規則](data/search_cases.json)。
 - [固定 revision 模型卡](https://huggingface.co/BAAI/bge-small-zh-v1.5/blob/7999e1d3359715c523056ef9478215996d62a620/README.md)。
 
@@ -63,10 +63,10 @@ with torch.inference_mode():
 在課程根目錄執行，首次連網下載固定 revision：
 
 ```bash
-python demo/17-embedding.py
+python demo/18-embedding.py
 ```
 
-已快取模型時，可改 `python demo/17-embedding.py --offline`。離線缺檔應明確失敗，不臨時换模型。等同的可互動程式為：
+已快取模型時，可改 `python demo/18-embedding.py --offline`。離線缺檔應明確失敗，不臨時换模型。等同的可互動程式為：
 
 ```python
 from embedding_course import Encoder, metadata
@@ -116,4 +116,9 @@ metadata.model_revision = 7999e1d3359715c523056ef9478215996d62a620
 
 ### 解答
 
-[17 Workshop 解答](workshop/17-embedding.md)。通過條件是實際 encode 或誠實標示預計算，並完成 metadata 核對；不要求模型一定把某段排第一。
+[17 Workshop 解答](workshop/18-embedding.md)。通過條件是實際 encode 或誠實標示預計算，並完成 metadata 核對；不要求模型一定把某段排第一。
+
+
+## Agent 操作與驗證
+
+請先要求 Agent 說明命令與預期變更，確認後才執行；完成後自行核對 exit code、實際輸出與資料庫證據。
