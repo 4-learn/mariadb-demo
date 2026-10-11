@@ -44,12 +44,28 @@ printf 'exit=%s\n' "$?"
 
 ## 方式 B：請 Agent 執行
 
-把 code section 和以下任務一起貼給 Agent：
+把 code section 和下面的完整任務一起貼給 Agent：
 
 ```text
-請先用簡單中文說明這段程式會查詢什麼、會不會修改資料。
-不要修改檔案，不要讀取密碼或私人設定檔。
-接著在目前課程 repo 執行這段程式，回報實際輸出與 exit code。
+你現在在 Ubuntu 的 ~/workspace/mariadb-demo repo 根目錄。
+
+任務：只驗證這段 Ch10 Python code section，不要設計新程式。
+
+規則：
+1. 先用簡單中文說明兩個 SELECT 查詢、connect、cursor、execute、fetchone、? 參數，以及為什麼這段程式不會 INSERT/UPDATE/DELETE。
+2. 不要讀取、列印或修改任何密碼、JSON 設定檔、token、.cnf 或私人檔案。
+3. 不要修改 repo 內任何檔案。可以在 /tmp/opencode/ 建立暫存的 run_query.py；執行完可刪除。
+4. 必須使用：
+   PYTHONPATH=/home/yillkid/workspace/mariadb-demo
+   /home/yillkid/mariadb-course-venv/bin/python
+5. 將 code section 原樣寫入暫存檔，不要改寫 SQL。
+6. 執行：
+   PYTHONPATH=/home/yillkid/workspace/mariadb-demo /home/yillkid/mariadb-course-venv/bin/python /tmp/opencode/run_query.py
+7. 回報實際命令、exit code、DATABASE()、CURRENT_USER()、@@autocommit、P001 的 product_id/name/price。
+8. 最後回答：是否只讀、是否修改 repo、是否讀取秘密。
+
+如果失敗，保留真實錯誤與 exit code，不要假裝成功。
+先說明計畫，確認後才建立暫存檔並執行。
 ```
 
 Agent 只需解釋與執行，不需要替你設計新程式。

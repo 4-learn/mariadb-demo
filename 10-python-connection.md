@@ -76,12 +76,28 @@ fetchone()：取回一筆結果
 
 ## 4. Workshop 任務
 
-把上面的完整 code section 貼給 Agent，要求它：
+把上面的完整 code section 貼給 Agent，使用下面這個較完整的任務。這個任務允許 Agent 建立暫存檔，但不允許它自行改寫程式或碰私人設定：
 
 ```text
-請先用簡單中文說明這段程式會查詢什麼、會不會修改資料。
-不要修改檔案，不要讀取密碼或私人設定檔。
-接著在目前課程 repo 執行這段程式，回報實際輸出與 exit code。
+你現在在 Ubuntu 的 ~/workspace/mariadb-demo repo 根目錄。
+
+任務：只驗證下面這段 Ch10 Python code section，不要設計新程式。
+
+規則：
+1. 先用簡單中文說明兩個 SELECT 查詢、connect、cursor、execute、fetchone、? 參數，以及為什麼這段程式不會 INSERT/UPDATE/DELETE。
+2. 不要讀取、列印或修改任何密碼、JSON 設定檔、token、.cnf 或私人檔案。
+3. 不要修改 repo 內任何檔案。可以在 /tmp/opencode/ 建立暫存的 run_query.py；執行完可刪除。
+4. 必須使用已存在的課程環境：
+   PYTHONPATH=/home/yillkid/workspace/mariadb-demo
+   /home/yillkid/mariadb-course-venv/bin/python
+5. 將 code section 原樣寫入暫存檔，不要把路徑改成別的 repo，也不要改寫 SQL。
+6. 執行命令必須等同：
+   PYTHONPATH=/home/yillkid/workspace/mariadb-demo /home/yillkid/mariadb-course-venv/bin/python /tmp/opencode/run_query.py
+7. 執行後回報：實際命令、exit code、DATABASE()、CURRENT_USER()、@@autocommit、P001 的 product_id/name/price。
+8. 最後明確回答：是否只讀、是否修改 repo、是否讀取秘密。
+
+如果 Python、course_db 或資料庫連線失敗，保留真實錯誤與 exit code，不要假裝成功。
+先說明計畫，確認後再建立暫存檔並執行。
 ```
 
 也可以不使用 Agent，自己把 code section 存成 `workshop/10-connection.py` 後執行。這一章的基本任務不是補 Python，而是看懂查詢與驗證結果。
