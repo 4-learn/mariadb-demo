@@ -1,8 +1,8 @@
-# 21 ANN：索引是近似候選，不是正確答案保證
+# 20 ANN：索引是近似候選，不是正確答案保證
 
 > **定位**：建立 MariaDB 向量索引，保留真實 EXPLAIN 與精確對照，觀察近似查詢的取捨。
 
-[上一節](20-vector-ranking.md) · [下一節](22-filters-evaluation.md)
+[上一節](19-vector-ranking.md) · [下一節](21-filters-evaluation.md)
 
 
 ## 學習目標
@@ -13,9 +13,9 @@
 
 ## 範例程式碼
 
-- [索引 DDL](demo/21-ann.sql)、[exact／ann 實作](vector_course.py)。
+- [索引 DDL](demo/20-ann.sql)、[exact／ann 實作](vector_course.py)。
 - [官方向量概述](https://mariadb.com/docs/server/reference/sql-structure/vectors/vector-overview)。
-- [本節解答](workshop/21-ann.md)。
+- [本節解答](workshop/20-ann.md)。
 
 ---
 
@@ -38,7 +38,7 @@ ANN 的目標是用索引找靠近查詢的候選，不是替你讀懂 SOP。資
 ### 2. 使用 editor 一次建立 cosine 索引
 
 ```bash
-mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/21-ann.sql
+mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/20-ann.sql
 ```
 
 核心 SQL：
@@ -108,9 +108,4 @@ ann plan：選 vector_idx，否則標示未驗證
 
 ### 解答
 
-[20 Workshop 解答](workshop/21-ann.md)。索引建立失敗、ANN 未用索引、拿 ANN 當精確標準，都是需要修正的驗收失敗。
-
-
-## Agent 操作與驗證
-
-請先要求 Agent 說明命令與預期變更，確認後才執行；完成後自行核對 exit code、實際輸出與資料庫證據。
+[20 Workshop 解答](workshop/20-ann.md)。索引建立失敗、ANN 未用索引、拿 ANN 當精確標準，都是需要修正的驗收失敗。

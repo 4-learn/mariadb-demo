@@ -1,8 +1,8 @@
-# 17 在 Ubuntu 使用 OpenCode CLI：讓 Agent 協助執行與驗證
+# 附錄 A｜OpenCode CLI（選）：讓 Agent 協助執行與驗證
 
 > **定位**：本章不是 Python 語法課，而是學習在 Ubuntu 安全使用 OpenCode CLI，讓 Agent 讀程式、執行命令、解釋輸出；學生仍必須自己驗證結果。
 
-[上一節](16-import-quality.md) · [下一節](18-embedding.md)
+[上一節](16-import-quality.md) · [回到 Ch17](17-embedding.md)
 
 ## 學習目標
 

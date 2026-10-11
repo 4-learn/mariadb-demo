@@ -1,8 +1,8 @@
-# 19 向量入庫：原文與座標必須能對得起來
+# 18 向量入庫：原文與座標必須能對得起來
 
 > **定位**：用 `VECTOR(512)` 儲存真實向量，透過參數化 `VEC_FromText` 與 metadata 阻止錯誤混入。
 
-[上一節](18-embedding.md) · [下一節](20-vector-ranking.md)
+[上一節](17-embedding.md) · [下一節](19-vector-ranking.md)
 
 
 ## 學習目標
@@ -13,8 +13,8 @@
 
 ## 範例程式碼
 
-- [建表 SQL](demo/19-vector-storage.sql)、[入庫與檢查程式](vector_course.py)。
-- [Artifact 驗證](embedding_course.py)、[本節解答](workshop/19-vector-storage.md)。
+- [建表 SQL](demo/18-vector-storage.sql)、[入庫與檢查程式](vector_course.py)。
+- [Artifact 驗證](embedding_course.py)、[本節解答](workshop/18-vector-storage.md)。
 
 ---
 
@@ -52,7 +52,7 @@ CREATE TABLE chunk_vectors (
 建表用 editor；這段與上方概念建表二擇一，實際以配套 SQL 為準，不能重複建立：
 
 ```bash
-mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/19-vector-storage.sql
+mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/18-vector-storage.sql
 ```
 
 執行前確認檔案 0600 與庫名。已有表就請教師核對 checkpoint，不加 `IF NOT EXISTS` 隱藏結構不符，也不要求 app 用 root。DDL 有隱含 commit，不能拿後面的 rollback 当成建表復原方案。此時刻意**尚不建向量索引**，先建立第 19 節精確對照。
@@ -134,9 +134,4 @@ check: consistent=true, chunks=16
 
 ### 解答
 
-[18 Workshop 解答](workshop/19-vector-storage.md)。不要為了讓筆數通過而補假向量或跳過 provenance。
-
-
-## Agent 操作與驗證
-
-請先要求 Agent 說明命令與預期變更，確認後才執行；完成後自行核對 exit code、實際輸出與資料庫證據。
+[18 Workshop 解答](workshop/18-vector-storage.md)。不要為了讓筆數通過而補假向量或跳過 provenance。

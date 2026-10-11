@@ -1,4 +1,4 @@
-# 23 一致性 Workshop
+# 22 一致性 Workshop
 
 ## 情境
 
@@ -50,7 +50,7 @@ python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --expecte
 python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --expected-version 1
 ```
 
-逐句執行；第一與最後一句故意非零退出。每次用 demo/23-consistency.sql 核對，完整 bytes 快照可參考 demo/25-acceptance.py。
+逐句執行；第一與最後一句故意非零退出。每次用 demo/22-consistency.sql 核對，完整 bytes 快照可參考 demo/24-acceptance.py。
 
 ### 提示
 
@@ -63,8 +63,3 @@ python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --expecte
 encode 在鎖外完成，避免把下載或 CPU 耗時放進短交易。這代表可能白算一份向量，但不能犧牲資料正確性來避免白算。
 
 只更改 C001 會被完整 chunk ID 集合檢查拒絕。把 C002 的版本留 1，或向量 source_version 留 1，都會破壞 `check`。失敗前後必須比較完整快照；只有最後 `check=true` 也可能漏掉「整份都被錯誤換過」的情況。
-
-
-## Agent 操作與驗證
-
-請先要求 Agent 說明命令與預期變更，確認後才執行；完成後自行核對 exit code、實際輸出與資料庫證據。

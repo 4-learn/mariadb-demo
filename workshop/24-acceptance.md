@@ -1,4 +1,4 @@
-# 25 增量驗收 Workshop
+# 24 增量驗收 Workshop
 
 ## 情境
 
@@ -27,7 +27,7 @@
 ## 輸入資料格式
 
 ```bash
-python demo/25-acceptance.py --artifact "$HOME/mariadb-vectors.json"
+python demo/24-acceptance.py --artifact "$HOME/mariadb-vectors.json"
 ```
 
 若私人檔不在預設位置，附 `--config "$HOME/mariadb-course-app.json"`，不附其內容。
@@ -69,8 +69,3 @@ ANN：plan 選 vector_idx，或明示 ANN NOT TESTED
 ```
 
 為何 v3 正確？source_version 描述提交序列，不是內容指紋。原文相同用 content_hash 表示；兩次更新仍要留下不同版本以拒絕過期編輯。這也是 baseline qrels 在復原後仍須重新確認的原因。
-
-
-## Agent 操作與驗證
-
-請先要求 Agent 說明命令與預期變更，確認後才執行；完成後自行核對 exit code、實際輸出與資料庫證據。

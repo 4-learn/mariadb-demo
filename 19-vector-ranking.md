@@ -1,8 +1,8 @@
-# 20 精確 Top-K：先把每一筆距離算清楚
+# 19 精確 Top-K：先把每一筆距離算清楚
 
 > **定位**：建立距離升冪、同分以 chunk_id 排序的精確搜尋，作為後續 ANN 的可核對基準。
 
-[上一節](19-vector-storage.md) · [下一節](21-ann.md)
+[上一節](18-vector-storage.md) · [下一節](20-ann.md)
 
 
 ## 學習目標
@@ -13,8 +13,8 @@
 
 ## 範例程式碼
 
-- [自我向量距離 SQL](demo/20-vector-ranking.sql)、[精確檢索 API](vector_course.py)。
-- [固定查詢與 qrels](data/search_cases.json)、[本節解答](workshop/20-vector-ranking.md)。
+- [自我向量距離 SQL](demo/19-vector-ranking.sql)、[精確檢索 API](vector_course.py)。
+- [固定查詢與 qrels](data/search_cases.json)、[本節解答](workshop/19-vector-ranking.md)。
 
 ---
 
@@ -112,9 +112,4 @@ Q01：最多 3 個不重複、分類 1 的合格 chunk
 
 ### 解答
 
-[19 Workshop 解答](workshop/20-vector-ranking.md)。第 21 節會把人工相關集合與實際排名分開計算品質。
-
-
-## Agent 操作與驗證
-
-請先要求 Agent 說明命令與預期變更，確認後才執行；完成後自行核對 exit code、實際輸出與資料庫證據。
+[19 Workshop 解答](workshop/19-vector-ranking.md)。第 21 節會把人工相關集合與實際排名分開計算品質。

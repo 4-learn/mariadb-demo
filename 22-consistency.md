@@ -1,8 +1,8 @@
-# 23 原文與向量一致性：兩段文件一起更新
+# 22 原文與向量一致性：兩段文件一起更新
 
 > **定位**：把模型計算放在交易外，進交易後鎖定並檢查版本，完整更新兩段文字、hash、向量與文件版本。
 
-[上一節](22-filters-evaluation.md) · [下一節](24-integration.md)
+[上一節](21-filters-evaluation.md) · [下一節](23-integration.md)
 
 
 ## 學習目標
@@ -13,9 +13,9 @@
 
 ## 範例程式碼
 
-- [交易實作 update_document](vector_course.py)、[唯讀一致性 SQL](demo/23-consistency.sql)。
-- [成功／失敗／還原測試](demo/25-acceptance.py)、[本節解答](workshop/23-consistency.md)。
-- [模組作業](homework/23-search.md)。
+- [交易實作 update_document](vector_course.py)、[唯讀一致性 SQL](demo/22-consistency.sql)。
+- [成功／失敗／還原測試](demo/24-acceptance.py)、[本節解答](workshop/22-consistency.md)。
+- [模組作業](homework/22-search.md)。
 
 ---
 
@@ -67,10 +67,10 @@ if row is None or row[0] != expected_version:
 ### 3. 先故意失敗，確認沒有半套資料
 
 ```bash
-mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/23-consistency.sql
+mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/22-consistency.sql
 python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1 --fail-after-first
 python vector_course.py check
-mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/23-consistency.sql
+mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/22-consistency.sql
 ```
 
 第二個指令應非零退出，原因為 `injected failure after first chunk/vector write`。這不是輸入驗證提早擋下：它確實已在交易內寫入第一段及第一個向量，才故意拋錯。前後兩段的文字、hash、向量 bytes 及全部版本應完全相同；只看 `check=true` 不足以證明內容沒被替換，驗收腳本會比對快照。
@@ -129,9 +129,4 @@ stale 重送：VersionConflict，快照不變
 
 ### 解答
 
-[22 Workshop 解答](workshop/23-consistency.md)，以及 [Homework 22](homework/23-search.md)。24 的完整驗收需另用初始版本 1 checkpoint，不能直接在本節已更新的資料上重跑。
-
-
-## Agent 操作與驗證
-
-請先要求 Agent 說明命令與預期變更，確認後才執行；完成後自行核對 exit code、實際輸出與資料庫證據。
+[22 Workshop 解答](workshop/22-consistency.md)，以及 [Homework 22](homework/22-search.md)。24 的完整驗收需另用初始版本 1 checkpoint，不能直接在本節已更新的資料上重跑。

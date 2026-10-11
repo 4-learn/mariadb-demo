@@ -1,8 +1,8 @@
-# 24 串接 CLI：可追溯的候選檢索工具
+# 23 串接 CLI：可追溯的候選檢索工具
 
 > **定位**：把私人連線設定、模型或固定向量、SQL 篩選與原文輸出串成完整命令列，不把候選包裝成模型已確認的答案。
 
-[上一節](23-consistency.md) · [下一節](25-acceptance.md)
+[上一節](22-consistency.md) · [下一節](24-acceptance.md)
 
 
 ## 學習目標
@@ -13,8 +13,8 @@
 
 ## 範例程式碼
 
-- [小型完整 CLI](demo/24-integration.py)、[功能完整 CLI](vector_course.py)。
-- [模型／artifact 程式](embedding_course.py)、[本節解答](workshop/24-integration.md)。
+- [小型完整 CLI](demo/23-integration.py)、[功能完整 CLI](vector_course.py)。
+- [模型／artifact 程式](embedding_course.py)、[本節解答](workshop/23-integration.md)。
 
 ---
 
@@ -45,7 +45,7 @@ chunk_id/document_id/source_version/text/distance -> JSON 候選輸出
 
 ```bash
 python vector_course.py --config "$HOME/mariadb-course-app.json" check
-python demo/24-integration.py --config "$HOME/mariadb-course-app.json" --artifact "$HOME/mariadb-vectors.json" --case Q01
+python demo/23-integration.py --config "$HOME/mariadb-course-app.json" --artifact "$HOME/mariadb-vectors.json" --case Q01
 ```
 
 主 CLI 的全域 `--config` 放在子命令前；demo 是單一命令，位置不同。不要把 JSON 內容、完整連線例外或密碼貼進作業。需要分享錯誤時只保留操作、必要錯誤類型與不敏感的狀態。
@@ -112,9 +112,4 @@ Q99：unknown case ID；非零退出
 
 ### 解答
 
-[23 Workshop 解答](workshop/24-integration.md)。API 正常回傳只代表串接完成；不代表模型品質、拒答能力或真实设备安全已驗證。
-
-
-## Agent 操作與驗證
-
-請先要求 Agent 說明命令與預期變更，確認後才執行；完成後自行核對 exit code、實際輸出與資料庫證據。
+[23 Workshop 解答](workshop/23-integration.md)。API 正常回傳只代表串接完成；不代表模型品質、拒答能力或真实设备安全已驗證。
