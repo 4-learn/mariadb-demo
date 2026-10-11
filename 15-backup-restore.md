@@ -146,6 +146,7 @@ mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" \
 mariadb-dump \
   --defaults-file="$HOME/mariadb-course-editor.cnf" \
   --single-transaction \
+  --skip-add-drop-table \
   "$source_db" categories products course_meta documents product_documents chunks \
   > "$backup_dir/core.sql"
 ```
@@ -157,42 +158,30 @@ mariadb-dump \
 | `mariadb-dump` | MariaDB 的備份工具，把資料輸出成 SQL 檔案 |
 | `--defaults-file=...` | 使用課程帳號設定檔連線，不在命令列輸入密碼 |
 | `--single-transaction` | 對 InnoDB 建立一致性的讀取快照 |
+| `--skip-add-drop-table` | 不在備份檔加入刪除資料表的指令，避免還原需要 `DROP` 權限 |
 
 用下面的圖理解「快照」：
 
-```html
-<div class="snapshot-diagram">
-  <style>
-    .snapshot-diagram { font-family: sans-serif; max-width: 680px; padding: 16px; color: #243447; }
-    .snapshot-row { display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: center; margin: 10px 0; }
-    .snapshot-label { font-weight: 700; }
-    .snapshot-track { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .box { padding: 10px 14px; border-radius: 8px; border: 2px solid #78909c; background: #eceff1; }
-    .backup { border-color: #1976d2; background: #e3f2fd; }
-    .arrow { color: #607d8b; font-size: 20px; }
-    .note { margin-top: 12px; padding: 10px 14px; border-left: 4px solid #2e7d32; background: #e8f5e9; }
-  </style>
-  <div class="snapshot-row">
-    <div class="snapshot-label">備份開始</div>
-    <div class="snapshot-track">
-      <div class="box">products：100 筆</div>
-      <div class="arrow">→</div>
-      <div class="box backup">備份快照：100 筆</div>
-    </div>
-  </div>
-  <div class="snapshot-row">
-    <div class="snapshot-label">備份進行中</div>
-    <div class="snapshot-track">
-      <div class="box">其他人新增第 101 筆</div>
-      <div class="arrow">→</div>
-      <div class="box backup">備份仍維持：100 筆</div>
-    </div>
-  </div>
-  <div class="note">--single-transaction：備份從開始的快照讀取，不會讀到一半變成前後不一致。</div>
-</div>
+```mermaid
+flowchart LR
+    A[備份開始<br/>products：100 筆] --> B[建立一致性快照<br/>備份看到：100 筆]
+    A -. 備份進行中 .-> C[其他人新增第 101 筆]
+    B --> D[備份檔仍是<br/>100 筆]
+    C -. 不影響本次快照 .-> D
 ```
+
+> `--single-transaction`：備份從開始的快照讀取，不會讀到一半變成前後不一致。
+
 | 資料庫名稱與表名 | 指定要備份哪個資料庫、哪些資料表 |
 | `>` | 把命令輸出寫入 `core.sql` |
+
+因為 `course_editor` 沒有 `DROP` 權限，本課必須使用 `--skip-add-drop-table`。如果先前已經用舊命令產生 `core.sql`，請重新產生備份檔，不要直接重複還原舊檔：
+
+```bash
+rm -f "$backup_dir/core.sql" "$backup_dir/core.sql.sha256" "$backup_dir/restored.sql"
+```
+
+再執行上面的 `mariadb-dump` 命令。
 
 先確認備份檔不是空的：
 
