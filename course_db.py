@@ -202,8 +202,10 @@ def import_products(conn, path):
     Invalid input returns inserted=0. SQL failures (including races after
     validation) roll back all rows and propagate. Requires an idle connection.
     """
-    if not conn.autocommit or conn.in_transaction:
-        raise ValueError("import requires autocommit=True")
+    if not conn.autocommit:
+        raise ValueError("import requires autocommit=True and an idle connection")
+    if hasattr(conn, "in_transaction") and conn.in_transaction:
+        raise ValueError("import requires autocommit=True and an idle connection")
     with closing(conn.cursor()) as cur:
         cur.execute("SELECT category_id FROM categories")
         categories = [r[0] for r in cur.fetchall()]
