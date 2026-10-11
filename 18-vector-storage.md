@@ -1,137 +1,72 @@
-# 18 向量入庫：原文與座標必須能對得起來
+# 18 向量入庫：原文、版本與座標對得起來
 
-> **定位**：用 `VECTOR(512)` 儲存真實向量，透過參數化 `VEC_FromText` 與 metadata 阻止錯誤混入。
+> **定位**：沿用 Ch5–16 的 PK/FK、DDL、參數化與交易驗證，把真實向量安全放回 chunk 關聯；Python 只負責可選的入庫實作。
 
 [上一節](17-embedding.md) · [下一節](19-vector-ranking.md)
 
-
 ## 學習目標
 
-- 區分 JSON 傳輸形式與 MariaDB 的 VECTOR 欄位。
-- 用主鍵／外鍵把每個 chunk 對應到一筆向量。
-- 說明維度、模型版本、原文 hash 與來源版本各防止哪種錯誤。
+- 區分 JSON 傳輸值與 MariaDB `VECTOR(512)` 欄位。
+- 用 PK/FK、版本、content hash、模型 metadata 防止錯配。
+- 知道 DDL 與 DML 的權限和交易邊界。
 
-## 範例程式碼
-
-- [建表 SQL](demo/18-vector-storage.sql)、[入庫與檢查程式](vector_course.py)。
-- [Artifact 驗證](embedding_course.py)、[本節解答](workshop/18-vector-storage.md)。
-
----
-
-## 情境
-
-你已計算 16 段 SOP 的向量。如果只把數字塞進一個 TEXT 欄位，之後找不到它來自哪段文字、哪個模型，原文更新時也不知道要重算哪筆。現在要把「向量」放回產品／文件／段落的關聯架構。
-
-先修 checkpoint：MariaDB **11.8.9**、Connector/Python **1.1.14**；workshop 的 sop-v1 仍是 8 文件／16 段／版本 1，尚未有 chunk_vectors。第 17 節 artifact 已驗證；app 私人 JSON 可由 `course_db.connect()` 連 socket，autocommit=True。不使用 01～03 的 reader 庫。
-
----
-
-## 講解
-
-### 1. 一個 chunk 對一筆向量
+## 1. 先確認 SQL checkpoint
 
 ```sql
-CREATE TABLE chunk_vectors (
-  chunk_id VARCHAR(16) PRIMARY KEY,
-  source_version INT NOT NULL,
-  content_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
-  model_id VARCHAR(100) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
-  model_revision CHAR(40) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
-  preprocessing_id VARCHAR(80) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
-  embedding VECTOR(512) NOT NULL,
-  FOREIGN KEY (chunk_id) REFERENCES chunks(chunk_id)
-) ENGINE=InnoDB;
+SELECT DATABASE(), CURRENT_USER();
+SELECT COUNT(*) AS chunks FROM chunks;
+SELECT COUNT(*) AS vectors FROM information_schema.tables
+ WHERE table_schema=DATABASE() AND table_name='chunk_vectors';
 ```
 
-主鍵使 C001 不能有兩筆向量；外鍵阻止不存在的 chunk_id。`VECTOR(512)` 固定元素數，`NOT NULL` 排除尚未計算的空值。但資料型別不知道文字是否更新，或 512 維是不是別的模型產生，因此 metadata 不能省。
+乾淨起點應有 16 chunks 且尚無 `chunk_vectors`。不要在錯誤 checkpoint 上用 `IF NOT EXISTS` 掩蓋問題。
 
-本課只支援一個固定模型集合，不實作多模型並存。若未來換模型，應設計完整重建／切換流程，而不是在同一欄位塞入新舊模型。
+## 2. 結構與安全概念
 
-### 2. 建表與使用表的權限分開
+`chunk_vectors(chunk_id PK, source_version, content_hash, model_id, model_revision, preprocessing_id, embedding VECTOR(512) NOT NULL, FK chunk_id→chunks)` 讓一個 chunk 對一筆向量；但 FK 不會證明原文未變，仍須 hash／metadata 驗證。editor 建表，app 只入庫；不使用 root。
 
-建表用 editor；這段與上方概念建表二擇一，實際以配套 SQL 為準，不能重複建立：
+向量 JSON 必須作一個參數交給 `VEC_FromText(?)`，不可拼接 SQL。DDL 有隱含 commit，不把建表當作後續 ingest rollback。
 
-```bash
-mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/18-vector-storage.sql
-```
+## 3. Code section：完成最小唯讀核對（Python 可選）
 
-執行前確認檔案 0600 與庫名。已有表就請教師核對 checkpoint，不加 `IF NOT EXISTS` 隱藏結構不符，也不要求 app 用 root。DDL 有隱含 commit，不能拿後面的 rollback 当成建表復原方案。此時刻意**尚不建向量索引**，先建立第 19 節精確對照。
-
-### 3. JSON 是值，不是 SQL 字串拼接
-
-Python list 不能直接當作 SQL 的 512 個欄位。我們將它序列化成一個 JSON array 字串，再讓 `VEC_FromText(?)` 轉成 VECTOR：
+Workshop 與本章使用同一段；它先驗證真實向量能被 MariaDB 解析，不會寫入資料：
 
 ```python
 import json
 from course_db import connect
 from embedding_course import load_artifact
-a = load_artifact("/home/student/mariadb-vectors.json")
-c = a["chunks"][0]
-conn = connect()
-cur = conn.cursor()
-try:
-    cur.execute("SELECT VEC_DISTANCE_COSINE(VEC_FromText(?), VEC_FromText(?))",
-                (json.dumps(c["embedding"]), json.dumps(c["embedding"])))
-    print(cur.fetchone())
-finally:
-    cur.close()
-    conn.close()
+
+artifact = load_artifact("$HOME/mariadb-vectors.json")
+# TODO 1：取第一個 chunk 的 embedding，序列化成 JSON array。
+vector_json = json.dumps(artifact["chunks"][0]["embedding"])
+with connect() as conn:
+    with conn.cursor() as cur:
+        # TODO 2：以兩個參數查同一向量的 cosine distance。
+        cur.execute("SELECT VEC_DISTANCE_COSINE(VEC_FromText(?), VEC_FromText(?))", (vector_json, vector_json))
+        print(cur.fetchone())
 ```
 
-把 `/home/student/...` 改為你自己的實際檔案；命令列例子可用 `$HOME`，Python 字串不自動展開 shell 變數。上例沒有寫入，只驗證同一個真實向量距離接近 0。正式 INSERT 的核心是：
+正式 `INSERT` 也必須參數化，並在 transaction 中一次成功 16 筆；完整實作為 `vector_course.py ingest`。
 
-```python
-cur.execute("""INSERT INTO chunk_vectors
-  (chunk_id,source_version,content_hash,model_id,model_revision,preprocessing_id,embedding)
-  VALUES (?,?,?,?,?,?,VEC_FromText(?))""", values)
-```
-
-`values` 是七個值的 tuple，最後一項才是向量 JSON。完整可執行實作見 `_write_vector`；不以 f-string 將問題、原文或數字串入 SQL。Connector 1.1.14 使用 `?` 參數標记。
-
-### 4. 先驗來源，再一次入庫
+## 4. 執行、驗證、交付
 
 ```bash
+mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/18-vector-storage.sql
 python vector_course.py ingest --artifact "$HOME/mariadb-vectors.json"
 python vector_course.py check
 ```
 
-`ingest` 在交易中鎖定文件及 chunks，比對 DB 的 title、status、text、版本、hash、產品關聯與 artifact 的完整 baseline。它也要求 chunk_vectors 為空。全部 16 筆成功才 commit，任何一步失敗都 rollback；重複執行不偷偷覆蓋。
-
-`check` 逐段比對 document／chunk／vector 版本相同、SHA2(text,256) 與兩份 hash 一致、固定模型 metadata 一致，最後確認 16 筆。資料庫只存來源 hash，無法靠 hash 證明某向量確實由模型算出，因此 artifact 的信任來源與第 17 節 provenance 仍重要。
+SQL 交叉驗證：
 
 ```sql
-SELECT COUNT(*) AS vectors FROM chunk_vectors;
-SELECT c.chunk_id,c.source_version,v.source_version,
-       c.content_hash=SHA2(c.text,256) AS text_ok,
-       BINARY c.content_hash=BINARY v.content_hash AS vector_source_ok
-FROM chunks c JOIN chunk_vectors v ON v.chunk_id=c.chunk_id
-ORDER BY c.chunk_id;
+SELECT COUNT(*) FROM chunk_vectors;
+SELECT c.chunk_id, c.source_version=v.source_version AS version_ok,
+       BINARY c.content_hash=BINARY v.content_hash AS hash_ok
+FROM chunks c JOIN chunk_vectors v USING (chunk_id) ORDER BY c.chunk_id;
 ```
 
-應有 16 列，各版本 1、兩個布林欄位皆 1。16 筆只是完整性條件，不代表排名品質已通過。
+預期 16 筆且全部為 1。再次 ingest 應拒絕且資料不變；維度、revision、原文 hash 不符應在寫入前失敗。
 
----
+## 交件
 
-## Workshop
-
-### 題目
-
-建表核對 入庫 錯誤分類。
-
-1. 用 editor 建表，用 app 入庫；記錄各自角色，不貼私人設定。
-2. 核對 16 筆與 hash／version，解釋為何不能只有 `embedding` 一欄。
-3. 再執行一次 ingest，確認被「非空 checkpoint」拒絕，筆數及 hash 未變。
-
-### 預期輸出
-
-```text
-首次 ingest: inserted=16
-check: consistent=true, chunks=16
-再次 ingest: 拒絕覆蓋，原資料仍完整
-```
-
-維度 511、revision 不符或原文不同應在寫入前被拒絕。`ERROR 1142` 建表權限錯誤不等於維度驗收成功；找不到表也不等於安全拒絕。先修復正確 checkpoint，再重測指定條件。
-
-### 解答
-
-[18 Workshop 解答](workshop/18-vector-storage.md)。不要為了讓筆數通過而補假向量或跳過 provenance。
+交付角色與權限、code section、ingest/check 輸出、SQL 16 筆與 hash/version 結果，以及重跑拒絕的退出碼。不要交私人 cnf。
