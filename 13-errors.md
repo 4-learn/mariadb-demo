@@ -1,69 +1,96 @@
-# 13 錯誤處理：先分類，再安全回報
+# 13 錯誤處理：看懂錯誤，再安全回報
 
-> **定位**：延續 Ch5–9 的約束與 Ch12 的交易，將失敗按階段、例外型別與 errno 分類；資源要關閉，錯誤不可被吞掉，秘密不可輸出。
+> **定位**：延續 Ch5～9 的主鍵、外鍵、權限與連線概念，用一個完整 code section 觀察錯誤。學生不必先會 Python；先讓 Agent 執行，再看錯誤類型、errno 與資料庫狀態。
 
-[上一節](12-transactions.md)
+[上一節](12-transactions.md) · [下一節](14-indexes.md)
 
-## 學習目標
+## 1. 先回想已學錯誤
 
-- 分辨設定、連線、cursor、SQL、權限、主鍵與外鍵錯誤。
-- 以例外型別與 errno 分類，不靠模糊字串猜測。
-- 失敗時 rollback、關閉已建立資源，並保留原始錯誤。
-- CLI 只輸出安全摘要，例如 `OperationalError/2002`。
+```text
+1062：主鍵或唯一鍵重複
+1452：外鍵不存在
+1142：權限不足
+2002：socket／連線問題
+```
 
-## 1. 錯誤地圖
+錯誤不是「查無資料」。要保留真正的失敗，不能使用 `except: pass`、`INSERT IGNORE` 或把所有錯誤重試。
 
-| 階段 | 典型證據 | 行動 |
-|---|---|---|
-| 設定檔 | `FileNotFoundError` | 修正路徑，不執行 SQL |
-| 連線 | `OperationalError`, 2002 | 檢查 socket/環境 |
-| 主鍵 | `IntegrityError`, 1062 | 回報重複，不覆蓋、不重試 |
-| 外鍵 | `IntegrityError`, 1452 | rollback，檢查來源 ID |
-| SQL | 1064 | 修正程式，不無限重試 |
-| 權限 | 1142 | 停止越權，不要求全域 GRANT |
-
-`connect()` 失敗沒有 connection 可關；cursor 建立失敗仍要關 connection；`execute()` 失敗要關 cursor 與 connection。`close` 釋放資源，`rollback` 撤回未提交資料，兩者不是同一件事。
-
-## 2. Code section：分類重複鍵並保留資源責任
+## 2. Code section：預期的重複鍵錯誤
 
 ```python
 from contextlib import closing
-import mariadb
-from course_db import connect, create_product, get_product
+from course_db import connect
 
 with closing(connect()) as conn:
-    conn.begin()
-    try:
-        # TODO 1：參數化新增 P914，再故意以同一 ID 新增一次。
-        # 捕捉 mariadb.IntegrityError，僅接受 errno=1062，輸出安全摘要。
-        duplicate_errno = None
+    with closing(conn.cursor()) as cur:
+        conn.begin()
+        try:
+            cur.execute(
+                "INSERT INTO products "
+                "(product_id, category_id, name, price, stock, status) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                ("P914", 1, "錯誤處理測試品", "77.00", 1, "active"),
+            )
+            print("first insert", cur.rowcount)
 
-    except mariadb.IntegrityError as exc:
-        # TODO 2：記錄 exc.errno；不是 1062 就重新 raise，不可 except: pass。
-        duplicate_errno = exc.errno
-        conn.rollback()
-        print(f"duplicate: errno={duplicate_errno}; not retried")
-    else:
-        conn.rollback()
+            try:
+                cur.execute(
+                    "INSERT INTO products "
+                    "(product_id, category_id, name, price, stock, status) "
+                    "VALUES (?, ?, ?, ?, ?, ?)",
+                    ("P914", 1, "重複測試品", "66.00", 1, "active"),
+                )
+            except Exception as exc:
+                print("duplicate", type(exc).__name__, getattr(exc, "errno", None))
+                conn.rollback()
 
-    # TODO 3：回讀 P914 應為 None，並執行 SELECT 1 證明同一連線仍可用。
-    print(get_product(conn, "P914"))
+            cur.execute("SELECT 1")
+            print("connection usable", cur.fetchone())
+        finally:
+            conn.rollback()
+
+with closing(connect()) as observer:
+    with closing(observer.cursor()) as cur:
+        cur.execute("SELECT product_id FROM products WHERE product_id = ?", ("P914",))
+        print("after rollback", cur.fetchone())
 ```
 
-可用 `demo/13-errors.py` 看真實 MariaDB 的完整負面案例；`workshop/13-connection-failure.py` 使用暫時設定檔測試 2002，不能改原始設定。不要 `except: pass`、`INSERT IGNORE`、`REPLACE` 或輸出密碼、完整私人 JSON、socket 設定與含秘密的原始訊息。
+看懂三件事即可：錯誤發生在第二次 INSERT；rollback 取消第一次 INSERT；第二條連線確認 P914 不存在。`errno=1062` 是可分類的證據，不是要隱藏的訊息。
 
-## 3. 執行與驗證
+## 3. Workshop：請 Agent 解釋與執行
 
-```bash
-. "$HOME/mariadb-course-venv/bin/activate"
-cd ~/workspace/mariadb-demo
-PYTHONPATH=. python demo/13-errors.py
-PYTHONPATH=. python workshop/13-connection-failure.py
-PYTHONPATH=. python workshop/13-errors.py
+```text
+你現在在 Ubuntu 的 ~/workspace/mariadb-demo repo 根目錄。
+請只驗證這段 Ch13 error-handling code，不要設計新程式。
+先說明第一次 INSERT、第二次重複 INSERT、errno、rollback、SELECT 1 與第二條連線。
+不要讀取、列印或修改密碼、JSON 設定檔、token、.cnf 或私人檔案。
+不要修改 repo；可在 /tmp/opencode/run_errors.py 建立暫存檔，執行後刪除。
+必須使用 /home/yillkid/mariadb-course-venv/bin/python，PYTHONPATH=/home/yillkid/workspace/mariadb-demo。
+原樣寫入 code section；先說明計畫，確認後才執行。
+回報 duplicate 的錯誤類型、errno、SELECT 1、after rollback 與 exit code；失敗不可假裝成功。
 ```
 
-預期：`errno=1062` 且不重試、rollback 後 `SELECT 1=1`、資源關閉；socket 測試為 2002 且原始設定不變；mock 測試 `OK`。最後用 SQL 確認 P914 不存在。
+也可以自己執行完整 code section。不要為了讓畫面好看而刪除錯誤。
 
-## 4. 交件
+## 4. 驗證與延伸
 
-提交 code section、1062/2002 摘要、mock 測試結果、錯誤分類與資源責任說明、P914 最終查詢。不要提交密碼、私人設定檔或完整 exception message。
+預期看到：
+
+```text
+duplicate ... 1062
+connection usable (1,)
+after rollback None
+exit code=0
+```
+
+用 MariaDB 再確認：
+
+```sql
+SELECT product_id FROM products WHERE product_id = 'P914';
+```
+
+應為空。連線失敗、權限錯誤與外鍵錯誤可在教師提供的其他案例中觀察；本章先學會保留並分類一個真實錯誤。
+
+## 交件
+
+完整 code section、Agent 或自己的說明、實際錯誤類型與 errno、exit code、SQL 驗證結果。不要提交密碼、私人設定檔或完整 socket 路徑。
