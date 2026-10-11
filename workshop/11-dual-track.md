@@ -1,29 +1,53 @@
-# Ch11 雙軌 Workshop
+# Ch11 Workshop：參數化 CRUD
 
-## 雙軌實作
+沿用 Ch5–9 的條件查詢與 Ch10 的連線。只用 `P915`，所有值以 `?` 傳入，最後回滾。
 
-### 共同概念
+## 共同 code section
 
-SQL 結構與資料值必須分開；所有外部值使用 `?` 參數與 tuple，不使用 f-string、`%` 或 `.format()` 拼接 SQL。練習只准使用 P9xx，最後清理。
+請自行完成 TODO，或選擇下方的 Agent completion；兩條路線使用完全相同的程式與驗證。
 
-### 路線 A：Agent／Vibe Coding
+```python
+from contextlib import closing
+from course_db import connect
 
-請 Agent 先閱讀 schema、`course_db.py` 與 `demo/11-crud.py`，提出 CRUD 計畫；確認後才修改。要求它列出 diff，並檢查新增、讀取、修改、刪除都使用參數。
+with closing(connect()) as conn:
+    with closing(conn.cursor()) as cur:
+        conn.begin()
+        try:
+            # TODO 1：INSERT P915，名稱為 O'Reilly；價格 125.50、庫存 1。
+            # 使用 ? 與 tuple，記錄 created = cur.rowcount。
+            created = None
 
-```bash
-git diff -- demo/11-crud.py course_db.py
-PYTHONPATH=. python3 demo/11-crud.py
+            # TODO 2：SELECT P915，記錄 row；再 UPDATE stock=4，記錄 updated。
+            # 用 row 回讀 name/price/stock，確認單引號原樣保留。
+            row = None
+            updated = None
+
+            # TODO 3：以參數查詢 "P915' OR 1=1 -- "，記錄 injection_row。
+            # 它應為 None；接著 DELETE P915，記錄 deleted。
+            injection_row = None
+            deleted = None
+
+            print(created, updated, row, injection_row, deleted)
+        finally:
+            conn.rollback()
 ```
 
-### 路線 B：Python-first
+## 自行完成或 Agent completion
 
-自行完成一組 P9xx CRUD，使用 `cursor.execute(sql, values)`、`rowcount`、回讀與 finally／context manager；用 `O'Reilly` 測試文字值。
+- **自行完成**：填入三個 TODO，執行並修正錯誤。
+- **Agent completion**：可貼上這段安全短 prompt：
 
-### 共同驗證與交件
+```text
+只修改這個 code section 的 TODO。使用 MariaDB ? 參數與 tuple，禁止 f-string、%、format、DDL 和修改 P001–P012。完成後先列出 diff，再執行一次；最後回報 rowcount、回讀值與 exit code，不要輸出密碼或設定檔。
+```
 
-交件包含 diff 或程式碼、rowcount、回讀結果，以及 SQL 沒有字串拼接的證據。用 MariaDB 查詢確認 P001～P012 未變。
+## 執行與驗證
 
+```bash
+. "$HOME/mariadb-course-venv/bin/activate"
+cd ~/workspace/mariadb-demo
+PYTHONPATH=. python demo/11-crud.py
+```
 
-## 驗收規則
-
-Agent 路線與 Python-first 路線使用相同資料庫驗證；不得把 Agent 摘要當成證據。
+預期 `created=1`、`updated=1`、`price=125.50`、`stock=4`，`P915' OR 1=1 -- ` 查不到，刪除後 P915 不存在。用 MariaDB 查詢確認 P001 仍存在；交件包含程式、輸出、exit code 與參數化證據。不要提交私人設定。
