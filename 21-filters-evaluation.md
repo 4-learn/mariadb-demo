@@ -38,12 +38,12 @@ print(evaluate(artifact, k=3))
 
 ## 3. 固定 Agent prompt
 
-> 使用 `/usr/bin/python3`、`PYTHONPATH="$PWD"`，把完整程式寫到 `/tmp/ch21_eval.py` 後執行；不得 TODO、由排名反推 qrels、改 category 或讀 HackMD/repos。回報實際輸出與 exit code。
+> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，把完整程式寫到 `/tmp/ch21_eval.py` 後執行；不得 placeholders、由排名反推 qrels、改 category 或讀 HackMD/repos。回報實際輸出與 exit code。
 
 ## 4. 執行與驗收
 
 ```bash
-PYTHONPATH="$PWD" /usr/bin/python3 /tmp/ch21_eval.py; rc=$?; echo "exit_code=$rc"
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch21_eval.py; rc=$?; echo "exit_code=$rc"
 python vector_course.py evaluate --artifact "$HOME/mariadb-vectors.json" --k 3; rc=$?; echo "exit_code=$rc"
 ```
 

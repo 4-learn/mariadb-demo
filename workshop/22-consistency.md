@@ -1,28 +1,34 @@
 # 22 一致性 Workshop
 
-## 任務
+## 概念
+向量先在交易外計算；交易內鎖文件並重查 expected_version，再完整更新文字/hash/vector。故障 rollback，stale 拒絕。
 
-在隔離的版本 1 checkpoint 使用主課同一 code section。可自行補 TODO，或請 Agent 補 TODO；不要提供私人設定檔，執行與 SQL 快照由你完成。
-
+## 完整程式 `/tmp/ch22_consistency.py`
 ```python
+import os
 from pathlib import Path
-from course_db import connect
 from embedding_course import load_artifact
+from course_db import connect
 from vector_course import update_document
-
-artifact = load_artifact(Path.home() / "mariadb-vectors.json")
-texts = {c["chunk_id"]: c["text"] for c in artifact["updates"]["D001"]["chunks"]}
-# TODO 1：在乾淨版本 1 checkpoint 呼叫一次更新。
-result = None
-# TODO 2：印出結果，保留 document 與兩個 chunk 的版本。
-print(result)
+a=load_artifact(Path(os.environ.get("VECTOR_ARTIFACT",str(Path.home()/"mariadb-vectors.json"))))
+texts={c["chunk_id"]:c["text"] for c in a["updates"]["D001"]["chunks"]}
+with connect() as conn:
+ result=update_document(conn,"D001",1,texts,prepared=a); print(result); conn.commit()
 ```
 
-## 執行與驗收
+## Agent prompt
+> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"` 執行 `/tmp/ch22_consistency.py`；不得 placeholders、忽略版本衝突或讀 HackMD/repos。先保存 before snapshot，回報 stdout/stderr/實際 exit code；故障注入只能用 CLI。
 
-1. 保存 before SQL 快照。
-2. `update ... --fail-after-first` 應非零；after 必須與 before 的文字、hash、vector bytes、版本完全相同。
-3. 用 code section 或 CLI 成功更新；D001/C001/C002/vectors 全為版本 2。
-4. 再用 expected_version=1 重送，得到 `VersionConflict`，快照不變。
+```bash
+python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1 --fail-after-first; rc=$?; echo "failure_exit_code=$rc"
+python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1; rc=$?; echo "success_exit_code=$rc"
+python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1; rc=$?; echo "stale_exit_code=$rc"
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch22_consistency.py; rc=$?; echo "code_exit_code=$rc"
+```
 
-只有印出例外不算 rollback 證據；若錯誤發生在連線或 artifact 載入，也不算「寫入後故障」。`FOR UPDATE` 後重新檢查版本才是 stale 防護核心。
+```sql
+SELECT d.source_version,c.chunk_id,c.source_version,v.source_version,SHA2(c.text,256)=c.content_hash AS text_ok
+FROM documents d JOIN chunks c USING(document_id) JOIN chunk_vectors v USING(chunk_id)
+WHERE d.document_id='D001' ORDER BY c.chunk_id;
+```
+故障非零且 before=after；成功版本 2；stale `VersionConflict` 且 snapshot 不變。交付四組 SQL 快照與實際退出碼。

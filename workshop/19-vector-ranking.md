@@ -18,10 +18,10 @@ assert len({r["chunk_id"] for r in rows})==len(rows)
 ```
 
 ## Agent prompt
-> 用 `/usr/bin/python3`、`PYTHONPATH="$PWD"` 執行 `/tmp/ch19_ranking.py`；不得 TODO、手動重排、改 qrels 或讀 HackMD/repos。回報實際 exit code。
+> 用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"` 執行 `/tmp/ch19_ranking.py`；不得 placeholders、手動重排、改 qrels 或讀 HackMD/repos。回報實際 exit code。
 
 ```bash
-PYTHONPATH="$PWD" /usr/bin/python3 /tmp/ch19_ranking.py; rc=$?; echo "exit_code=$rc"
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch19_ranking.py; rc=$?; echo "exit_code=$rc"
 python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --mode exact --k 3 --explain; rc=$?; echo "search_exit_code=$rc"
 ```
 保存 SQL 自我查詢、IDs/distance、EXPLAIN、原文與退出碼。

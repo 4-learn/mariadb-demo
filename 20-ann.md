@@ -35,12 +35,12 @@ print("intersection_fraction =", len(exact_ids & {r["chunk_id"] for r in ann}) /
 
 ## 3. 固定 Agent prompt
 
-> 使用 `/usr/bin/python3`、`PYTHONPATH="$PWD"`，將完整程式存為 `/tmp/ch20_ann.py` 並執行；不得 TODO、改 query/k、捏造 plan 或讀 HackMD/repos。回報兩組 stdout、stderr 與 exit code。
+> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將完整程式存為 `/tmp/ch20_ann.py` 並執行；不得 placeholders、改 query/k、捏造 plan 或讀 HackMD/repos。回報兩組 stdout、stderr 與 exit code。
 
 ## 4. 執行與驗收
 
 ```bash
-PYTHONPATH="$PWD" /usr/bin/python3 /tmp/ch20_ann.py; rc=$?; echo "exit_code=$rc"
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch20_ann.py; rc=$?; echo "exit_code=$rc"
 python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --mode exact --k 3 --explain; rc=$?; echo "exact_exit_code=$rc"
 python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --mode ann --k 3 --explain; rc=$?; echo "ann_exit_code=$rc"
 ```

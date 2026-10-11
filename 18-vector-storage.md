@@ -37,7 +37,7 @@ with connect() as conn:
 
 ## 3. 固定 Agent prompt
 
-> 使用 `/usr/bin/python3`、`PYTHONPATH="$PWD"`，將上述完整程式寫入 `/tmp/ch18_storage.py` 並執行；不得加 TODO、拼接 SQL、修改 artifact 或讀 HackMD/repos。回報 stdout、stderr、實際 exit code。
+> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將上述完整程式寫入 `/tmp/ch18_storage.py` 並執行；不得加 placeholders、拼接 SQL、修改 artifact 或讀 HackMD/repos。回報 stdout、stderr、實際 exit code。
 
 ## 4. 執行與 SQL 驗證
 

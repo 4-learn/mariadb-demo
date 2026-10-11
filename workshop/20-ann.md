@@ -20,10 +20,10 @@ e={r["chunk_id"] for r in exact}; n={r["chunk_id"] for r in ann}; print("interse
 ```
 
 ## Agent prompt
-> 使用 `/usr/bin/python3`、`PYTHONPATH="$PWD"` 執行 `/tmp/ch20_ann.py`；不得 TODO、捏造 plan、改 query/k 或讀 HackMD/repos。回報兩組 exit code。
+> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"` 執行 `/tmp/ch20_ann.py`；不得 placeholders、捏造 plan、改 query/k 或讀 HackMD/repos。回報兩組 exit code。
 
 ```bash
-PYTHONPATH="$PWD" /usr/bin/python3 /tmp/ch20_ann.py; rc=$?; echo "exit_code=$rc"
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch20_ann.py; rc=$?; echo "exit_code=$rc"
 mariadb mariadb_workshop_2026 -e "SHOW INDEX FROM chunk_vectors WHERE Key_name='vector_idx';"
 ```
 保留 plans、IDs、交集及 SQL；小資料不可宣稱效能。
