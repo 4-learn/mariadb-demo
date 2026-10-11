@@ -1,22 +1,27 @@
-# 19 精確排名 Workshop
+# 19 精確 Top-K Workshop
 
-## 任務
+## 概念
+Cosine distance 越小越近；exact 依 `(distance ASC, chunk_id ASC)` 排序，Top-k 仍是候選。
 
-使用主課同一 code section；可自己補 TODO，或請 Agent 只補 TODO 後由你執行與驗證。
-
+## 完整程式 `/tmp/ch19_ranking.py`
 ```python
+import os
+from pathlib import Path
+from embedding_course import load_artifact,recorded_query
 from course_db import connect
-from embedding_course import load_artifact, recorded_query
-
-artifact = load_artifact("$HOME/mariadb-vectors.json")
-case, query_vector = recorded_query(artifact, "Q01")
-# TODO 1：以 query_vector 執行課程的 exact search，category 與 k 固定。
-rows = None
-# TODO 2：列出每列的 chunk_id、distance，並確認排序鍵。
-for row in rows:
-    print(row["chunk_id"], row["distance"])
+from vector_course import search
+a=load_artifact(Path(os.environ.get("VECTOR_ARTIFACT",str(Path.home()/"mariadb-vectors.json"))))
+case,v=recorded_query(a,"Q01")
+with connect() as conn: rows=search(conn,v,k=3,category_id=case["category_id"],mode="exact",explain=False)
+for r in rows: print(r["chunk_id"],r["distance"])
+assert len({r["chunk_id"] for r in rows})==len(rows)
 ```
 
-## 執行與驗收
+## Agent prompt
+> 用 `/usr/bin/python3`、`PYTHONPATH="$PWD"` 執行 `/tmp/ch19_ranking.py`；不得 TODO、手動重排、改 qrels 或讀 HackMD/repos。回報實際 exit code。
 
-先用 C001 自我查詢驗證 distance 接近 0，再執行 Q01 exact `--explain`。保存實際 chunk_id、distance、source_version、原文與 plan；確認同分以 chunk_id 升冪、沒有 vector_idx。不得用人工預期調整排名，也不得把 top-k 當答案正確率。
+```bash
+PYTHONPATH="$PWD" /usr/bin/python3 /tmp/ch19_ranking.py; rc=$?; echo "exit_code=$rc"
+python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --mode exact --k 3 --explain; rc=$?; echo "search_exit_code=$rc"
+```
+保存 SQL 自我查詢、IDs/distance、EXPLAIN、原文與退出碼。

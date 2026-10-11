@@ -1,51 +1,47 @@
 # 19 精確 Top-K：先把每一筆距離算清楚
 
-> **定位**：以 Ch5–9 的 SELECT、WHERE、ORDER BY、LIMIT，加上 18 的向量表，建立可重現的精確基準；ANN 尚未是本章答案。
+> **概念**：cosine distance 越小越近；exact search 先建立合格集合，再按 `(distance ASC, chunk_id ASC)` 排序。Top-k 是候選，不是正確率；ANN 尚未在本節使用。
 
 [上一節](18-vector-storage.md) · [下一節](20-ann.md)
 
-## 學習目標
-
-- 分辨 cosine distance（小較近）與 similarity（大較近）。
-- 先形成合格集合，再以 distance ASC、chunk_id ASC 排序。
-- 保存實際 EXPLAIN，不能用 ANN 結果冒充精確基準。
-
-## 1. 先用 SQL 驗證排序方向
+## 1. SQL 自我檢查
 
 ```sql
 SET @q=(SELECT embedding FROM chunk_vectors WHERE chunk_id='C001');
 SELECT chunk_id, VEC_DISTANCE_COSINE(embedding,@q) AS distance
-FROM chunk_vectors
-ORDER BY distance ASC, chunk_id ASC LIMIT 3;
+FROM chunk_vectors ORDER BY distance ASC, chunk_id ASC LIMIT 3;
 ```
 
-C001 自我查詢距離應接近 0；這不是把 C001 假裝成使用者問題。SQL 沒有 ORDER BY 時不保證順序。
+C001 自我距離應接近 0，且排序鍵明確。
 
-## 2. Code section：完成精確查詢（Python 可選）
+## 2. 完整可執行 code section
 
 ```python
-from course_db import connect
+import os
+from pathlib import Path
 from embedding_course import load_artifact, recorded_query
+from course_db import connect
+from vector_course import search
 
-artifact = load_artifact("$HOME/mariadb-vectors.json")
+artifact = load_artifact(Path(os.environ.get("VECTOR_ARTIFACT", str(Path.home()/"mariadb-vectors.json"))))
 case, query_vector = recorded_query(artifact, "Q01")
-# TODO 1：以 query_vector 執行課程的 exact search，category 與 k 固定。
-rows = None
-# TODO 2：列出每列的 chunk_id、distance，並確認排序鍵。
+with connect() as conn:
+    rows = search(conn, query_vector, k=3, category_id=case["category_id"], mode="exact", explain=False)
 for row in rows:
     print(row["chunk_id"], row["distance"])
+assert len({row["chunk_id"] for row in rows}) == len(rows)
+assert all(rows[i]["distance"] <= rows[i+1]["distance"] for i in range(len(rows)-1))
 ```
 
-提示：使用 `vector_course.search(..., mode='exact', category_id=case['category_id'], k=3)`；正式 SQL 需 active document/product 的 EXISTS 條件，不能只算所有向量。
+## 3. 固定 Agent prompt
 
-## 3. 執行、驗證、交付
+> 使用 `/usr/bin/python3`、`PYTHONPATH="$PWD"`，把完整程式寫入 `/tmp/ch19_ranking.py` 後執行；不得 TODO、手動重排、改 qrels 或讀 HackMD/repos。回報實際輸出與 exit code。
+
+## 4. 執行、EXPLAIN 與驗收
 
 ```bash
-python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --mode exact --k 3 --explain
+PYTHONPATH="$PWD" /usr/bin/python3 /tmp/ch19_ranking.py; rc=$?; echo "exit_code=$rc"
+python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --mode exact --k 3 --explain; rc=$?; echo "exit_code=$rc"
 ```
 
-驗證每列為合格且不重複，排序為 `(distance ASC, chunk_id ASC)`；EXPLAIN 不得使用 `vector_idx`（若已存在，程式應用 `IGNORE INDEX`）。top-k 只是候選，不代表答案正確。
-
-## 交件
-
-交付 SQL 自我查詢、code section、Q01 實際 IDs／距離／原文、EXPLAIN 與對「距離不是正確率」的說明。不手動重排或修改 qrels。
+保留 EXPLAIN；exact 不得以 `vector_idx` 冒充 ANN。交件附 SQL 自我查詢、Q01 實際 IDs／距離／原文、plan 與 exit code，並說明 distance 不等於答案正確率。

@@ -1,29 +1,29 @@
 # 18 向量入庫 Workshop
 
-## 任務
+## 概念
+`VECTOR(512)` 由參數化 `VEC_FromText(?)` 解析；FK 仍須搭配 version/hash/metadata。
 
-先核對 SQL checkpoint，再完成主課同一個 code section。可自己完成或請 Agent 補 TODO；Agent 不得取得私人 cnf，執行與驗收由你完成。
-
+## 完整程式 `/tmp/ch18_storage.py`
 ```python
-import json
+import os,json
+from pathlib import Path
 from course_db import connect
 from embedding_course import load_artifact
-
-artifact = load_artifact("$HOME/mariadb-vectors.json")
-# TODO 1：取第一個 chunk 的 embedding，序列化成 JSON array。
-vector_json = json.dumps(artifact["chunks"][0]["embedding"])
+a=load_artifact(Path(os.environ.get("VECTOR_ARTIFACT",str(Path.home()/"mariadb-vectors.json"))))
+v=json.dumps(a["chunks"][0]["embedding"],separators=(",",":"))
 with connect() as conn:
-    with conn.cursor() as cur:
-        # TODO 2：以兩個參數查同一向量的 cosine distance。
-        cur.execute("SELECT VEC_DISTANCE_COSINE(VEC_FromText(?), VEC_FromText(?))", (vector_json, vector_json))
-        print(cur.fetchone())
+ with conn.cursor() as cur:
+  cur.execute("SELECT VEC_DISTANCE_COSINE(VEC_FromText(?),VEC_FromText(?))",(v,v)); print("self_distance =",cur.fetchone()[0])
 ```
 
-## 執行與驗收
+## Agent prompt
+> 使用 `/usr/bin/python3`、`PYTHONPATH="$PWD"`，寫入並執行 `/tmp/ch18_storage.py`；不可 TODO、拼 SQL、讀 HackMD/repos。回報 stdout/stderr/實際 exit code。
 
-1. editor 執行 `demo/18-vector-storage.sql`，記錄帳號，不用 root。
-2. 執行 code section，距離應接近 0；這只是解析核對，不是入庫成功證明。
-3. 執行 `vector_course.py ingest`、`check`，確認 16 筆、版本/hash/metadata 一致。
-4. 再次 ingest 必須非零退出，且筆數與內容未變。
+```bash
+PYTHONPATH="$PWD" /usr/bin/python3 /tmp/ch18_storage.py; rc=$?; echo "code_exit_code=$rc"
+python vector_course.py ingest --artifact "$HOME/mariadb-vectors.json"; rc=$?; echo "ingest_exit_code=$rc"
+python vector_course.py check; rc=$?; echo "check_exit_code=$rc"
+mariadb mariadb_workshop_2026 -e "SELECT COUNT(*) FROM chunk_vectors; SELECT COUNT(*) FROM chunks c JOIN chunk_vectors v USING(chunk_id) WHERE c.source_version<>v.source_version OR BINARY c.content_hash<>BINARY v.content_hash;"
+```
 
-若只有 `embedding` 沒有 chunk_id、hash、版本或模型 revision，不算通過；外鍵也不能代替這些檢查。
+預期 16、0、check 0；重跑 ingest 應非零且資料不變。附 SQL、stdout/stderr 與 exit code。

@@ -1,48 +1,52 @@
 # 20 ANN：索引是近似候選，不是正確答案
 
-> **定位**：沿用 Ch5–19 的索引、EXPLAIN、ORDER BY 與可重算驗證，對照 exact 與 ANN；不以 16 筆資料宣稱效能。
+> **概念**：B-tree 做條件查找，VECTOR INDEX 做近似鄰近搜尋。ANN 必須以 exact 結果作對照；16 筆資料不能宣稱效能優勢。
 
 [上一節](19-vector-ranking.md) · [下一節](21-filters-evaluation.md)
 
-## 學習目標
-
-- 分辨 VECTOR INDEX 與 B-tree 的用途。
-- 核對 cosine、M=6、實際 `key=vector_idx`。
-- 以 exact 結果作候選交集基準，不混淆語意 recall。
-
-## 1. 先用 SQL 建立並檢查索引
+## 1. 建索引並核對
 
 ```sql
-ALTER TABLE chunk_vectors
-  ADD VECTOR INDEX vector_idx (embedding) M=6 DISTANCE=cosine;
+ALTER TABLE chunk_vectors ADD VECTOR INDEX vector_idx (embedding) M=6 DISTANCE=cosine;
 SHOW INDEX FROM chunk_vectors;
 ```
 
-只在乾淨 checkpoint 建一次；DDL 有隱含 commit。建立失敗或已存在時先停下核對，不重複刪建。
+只在乾淨 checkpoint 建一次；DDL 會 commit。已存在或失敗時停下記錄，不刪建重來。
 
-## 2. Code section：完成 exact／ANN 對照（Python 可選）
+## 2. 完整可執行 code section
 
 ```python
-from course_db import connect
+import os
+from pathlib import Path
 from embedding_course import load_artifact, recorded_query
+from course_db import connect
 from vector_course import search
 
-artifact = load_artifact("$HOME/mariadb-vectors.json")
-case, query_vector = recorded_query(artifact, "Q01")
-# TODO 1：用同一 query、category=1、k=3 執行 exact。
-exact = None
-# TODO 2：用同一輸入執行 ann，分別保留兩組 chunk_id。
-ann = None
+artifact = load_artifact(Path(os.environ.get("VECTOR_ARTIFACT", str(Path.home()/"mariadb-vectors.json"))))
+case, vector = recorded_query(artifact, "Q01")
+with connect() as conn:
+    exact = search(conn, vector, k=3, category_id=case["category_id"], mode="exact", explain=True)
+    ann = search(conn, vector, k=3, category_id=case["category_id"], mode="ann", explain=True)
 print("exact =", [r["chunk_id"] for r in exact])
 print("ann =", [r["chunk_id"] for r in ann])
+exact_ids = {r["chunk_id"] for r in exact}
+print("intersection_fraction =", len(exact_ids & {r["chunk_id"] for r in ann}) / len(exact_ids) if exact_ids else None)
 ```
 
-提示：用 `search(..., mode='exact'/'ann', explain=True)`，不要自行改 SQL 排序形狀。
+## 3. 固定 Agent prompt
 
-## 3. 執行、驗證、交付
+> 使用 `/usr/bin/python3`、`PYTHONPATH="$PWD"`，將完整程式存為 `/tmp/ch20_ann.py` 並執行；不得 TODO、改 query/k、捏造 plan 或讀 HackMD/repos。回報兩組 stdout、stderr 與 exit code。
 
-保留兩組 EXPLAIN：exact 應不選 vector_idx，ANN 必須實際顯示 `key=vector_idx` 才能宣稱索引已使用。計算 `|A∩E|/|E|`；E 為空則 null。交集相同只代表此 query、k、checkpoint 相同，不代表 ANN 永遠精確或更快。
+## 4. 執行與驗收
 
-## 交件
+```bash
+PYTHONPATH="$PWD" /usr/bin/python3 /tmp/ch20_ann.py; rc=$?; echo "exit_code=$rc"
+python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --mode exact --k 3 --explain; rc=$?; echo "exact_exit_code=$rc"
+python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --mode ann --k 3 --explain; rc=$?; echo "ann_exit_code=$rc"
+```
 
-交付 DDL、index 設定、同一 query 的兩組 plan／IDs／交集計算與限制說明。不要拿單次小資料耗時當 benchmark。
+```sql
+SHOW INDEX FROM chunk_vectors WHERE Key_name='vector_idx';
+```
+
+ANN plan 必須實際顯示 `key=vector_idx`，exact 不應使用它。交件附 SQL index、兩組 IDs/plans、交集計算和實際 exit codes；相同交集只代表本次 checkpoint。
