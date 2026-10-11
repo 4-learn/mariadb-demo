@@ -1,24 +1,29 @@
 # 20 ANN Workshop
 
-## 任務
+## 概念
+VECTOR INDEX 是近似候選；exact 是基準。ANN 必須由 EXPLAIN 證明使用 `vector_idx`。
 
-用主課同一段 code section；你可自行完成或請 Agent 補 TODO，但必須自己保留兩份 plan。
-
+## 完整程式 `/tmp/ch20_ann.py`
 ```python
+import os
+from pathlib import Path
+from embedding_course import load_artifact,recorded_query
 from course_db import connect
-from embedding_course import load_artifact, recorded_query
 from vector_course import search
-
-artifact = load_artifact("$HOME/mariadb-vectors.json")
-case, query_vector = recorded_query(artifact, "Q01")
-# TODO 1：用同一 query、category=1、k=3 執行 exact。
-exact = None
-# TODO 2：用同一輸入執行 ann，分別保留兩組 chunk_id。
-ann = None
-print("exact =", [r["chunk_id"] for r in exact])
-print("ann =", [r["chunk_id"] for r in ann])
+a=load_artifact(Path(os.environ.get("VECTOR_ARTIFACT",str(Path.home()/"mariadb-vectors.json"))))
+case,v=recorded_query(a,"Q01")
+with connect() as conn:
+ exact=search(conn,v,k=3,category_id=case["category_id"],mode="exact",explain=True)
+ ann=search(conn,v,k=3,category_id=case["category_id"],mode="ann",explain=True)
+print("exact =",[r["chunk_id"] for r in exact]); print("ann =",[r["chunk_id"] for r in ann])
+e={r["chunk_id"] for r in exact}; n={r["chunk_id"] for r in ann}; print("intersection_fraction =",len(e&n)/len(e) if e else None)
 ```
 
-## 執行與驗收
+## Agent prompt
+> 使用 `/usr/bin/python3`、`PYTHONPATH="$PWD"` 執行 `/tmp/ch20_ann.py`；不得 TODO、捏造 plan、改 query/k 或讀 HackMD/repos。回報兩組 exit code。
 
-先用 editor 建立 `vector_idx`（cosine、M=6），再以完全相同 Q01/category 1/k=3 執行 exact 與 ann 並加 `--explain`。exact 不得使用 vector_idx；ANN 沒有實際 `key=vector_idx` 就記為未驗證。填實際交集與分母；不要預填 3/3、不要把交集當人工語意 recall。
+```bash
+PYTHONPATH="$PWD" /usr/bin/python3 /tmp/ch20_ann.py; rc=$?; echo "exit_code=$rc"
+mariadb mariadb_workshop_2026 -e "SHOW INDEX FROM chunk_vectors WHERE Key_name='vector_idx';"
+```
+保留 plans、IDs、交集及 SQL；小資料不可宣稱效能。
