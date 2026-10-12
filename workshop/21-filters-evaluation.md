@@ -19,6 +19,19 @@ with connect() as conn:
  print(evaluate(conn,a,k=3))
 ```
 
+## Baseline reset（必要時由教師確認）
+
+若 `evaluate()` 回報 `documents differ from artifact baseline`，先由教師確認這是課程合成資料庫，再執行：
+
+```bash
+mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" \
+  mariadb_workshop_2026 < demo/21-reset-baseline.sql
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python \
+  vector_course.py ingest --artifact "$HOME/mariadb-vectors.json"
+```
+
+reset 不 DROP table、不需要 root、不列印秘密；Agent 不得自行猜測設定檔或重置資料。
+
 ## Agent prompt
 > 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將完整程式原樣寫入並執行 `/tmp/ch21_eval.py`；不得 placeholders、由排名反推 qrels、改分類或讀 HackMD/repos。回報 stdout、stderr 與實際 exit code；若資料庫不是 artifact baseline，保留真實錯誤。
 

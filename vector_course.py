@@ -21,7 +21,7 @@ class VersionConflict(ValueError):
 
 
 def _idle(conn):
-    if not conn.autocommit or conn.in_transaction:
+    if not conn.autocommit or getattr(conn, "in_transaction", False):
         raise ValueError("pass an idle autocommit=True course_db connection")
 
 
