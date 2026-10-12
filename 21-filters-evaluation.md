@@ -23,22 +23,22 @@ WHERE d.status='active' AND EXISTS (
 ```python
 import os
 from pathlib import Path
-from embedding_course import load_artifact, recorded_query
+from embedding_course import load_artifact
 from course_db import connect
-from vector_course import search, evaluate
+from vector_course import recorded_query, search, evaluate
 
 artifact = load_artifact(Path(os.environ.get("VECTOR_ARTIFACT", str(Path.home()/"mariadb-vectors.json"))))
-for case_id in ("Q01", "Q08"):
-    case, vector = recorded_query(artifact, case_id)
-    with connect() as conn:
+with connect() as conn:
+    for case_id in ("Q01", "Q08"):
+        case, vector = recorded_query(artifact, case_id)
         rows = search(conn, vector, k=3, category_id=case["category_id"], mode="exact")
-    print(case_id, [r["chunk_id"] for r in rows])
-print(evaluate(artifact, k=3))
+        print(case_id, [r["chunk_id"] for r in rows])
+    print(evaluate(conn, artifact, k=3))
 ```
 
 ## 3. 固定 Agent prompt
 
-> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，把完整程式寫到 `/tmp/ch21_eval.py` 後執行；不得 placeholders、由排名反推 qrels、改 category 或讀 HackMD/repos。回報實際輸出與 exit code。
+> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，把完整程式原樣寫到 `/tmp/ch21_eval.py` 後執行；不得 placeholders、由排名反推 qrels、改 category 或讀 HackMD/repos。回報實際輸出、stderr 與 exit code；若資料庫不是 artifact baseline，保留真實錯誤。
 
 ## 4. 執行與驗收
 
