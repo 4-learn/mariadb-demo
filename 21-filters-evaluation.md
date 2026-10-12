@@ -40,7 +40,21 @@ with connect() as conn:
 
 > 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，把完整程式原樣寫到 `/tmp/ch21_eval.py` 後執行；不得 placeholders、由排名反推 qrels、改 category 或讀 HackMD/repos。回報實際輸出、stderr 與 exit code；若資料庫不是 artifact baseline，保留真實錯誤。
 
-## 4. 執行與驗收
+## 4. 回到 artifact baseline（需要時）
+
+如果 `evaluate()` 回報 `documents differ from artifact baseline`，先確認你要重置的是這個合成課程資料庫。不要讓 Agent 猜測或讀密碼；由教師確認後，使用已存在的 `course_editor.cnf` 執行：
+
+```bash
+mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" \
+  mariadb_workshop_2026 < demo/21-reset-baseline.sql
+
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python \
+  vector_course.py ingest --artifact "$HOME/mariadb-vectors.json"
+```
+
+這個 reset 只重建 `documents`、`product_documents`、`chunks`、`course_meta` 與 `chunk_vectors` 的課程合成資料，不會 DROP table、不需要 root、不會列印秘密。完成後再執行本節 code 與 `evaluate`。
+
+## 5. 執行與驗收
 
 ```bash
 PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch21_eval.py; rc=$?; echo "exit_code=$rc"
