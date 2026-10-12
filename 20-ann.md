@@ -18,24 +18,24 @@ SHOW INDEX FROM chunk_vectors;
 ```python
 import os
 from pathlib import Path
-from embedding_course import load_artifact, recorded_query
+from embedding_course import load_artifact
 from course_db import connect
-from vector_course import search
+from vector_course import recorded_query, search
 
 artifact = load_artifact(Path(os.environ.get("VECTOR_ARTIFACT", str(Path.home()/"mariadb-vectors.json"))))
 case, vector = recorded_query(artifact, "Q01")
 with connect() as conn:
-    exact = search(conn, vector, k=3, category_id=case["category_id"], mode="exact", explain=True)
-    ann = search(conn, vector, k=3, category_id=case["category_id"], mode="ann", explain=True)
-print("exact =", [r["chunk_id"] for r in exact])
-print("ann =", [r["chunk_id"] for r in ann])
+    exact = search(conn, vector, k=3, category_id=case["category_id"], mode="exact", explain=False)
+    ann = search(conn, vector, k=3, category_id=case["category_id"], mode="ann", explain=False)
+print("exact =", [(r["chunk_id"], r["distance"]) for r in exact])
+print("ann =", [(r["chunk_id"], r["distance"]) for r in ann])
 exact_ids = {r["chunk_id"] for r in exact}
 print("intersection_fraction =", len(exact_ids & {r["chunk_id"] for r in ann}) / len(exact_ids) if exact_ids else None)
 ```
 
 ## 3. 固定 Agent prompt
 
-> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將完整程式存為 `/tmp/ch20_ann.py` 並執行；不得 placeholders、改 query/k、捏造 plan 或讀 HackMD/repos。回報兩組 stdout、stderr 與 exit code。
+> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將完整程式原樣存為 `/tmp/ch20_ann.py` 並執行。程式中的 `explain=False` 用來取得 exact/ANN 實際結果；另外執行下方兩個 `search --explain` 命令取得 plans，確認 ANN 的 `key=vector_idx`、exact 不使用 `vector_idx`（exact 的 plan 可能使用 `document_id`）。不得 placeholders、改 query/k、手動捏造 plan 或讀 HackMD/repos。回報每一步的 stdout、stderr 與實際 exit code。
 
 ## 4. 執行與驗收
 
