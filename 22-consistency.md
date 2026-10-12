@@ -4,8 +4,6 @@
 
 [上一節](21-filters-evaluation.md) · [下一節](23-integration.md)
 
-![Ch22 流程圖](diagrams/mariadb/ch22.svg)
-
 ## 1. SQL before snapshot
 
 ```sql
@@ -33,6 +31,16 @@ with connect() as conn:
     print(result)
     conn.commit()
 ```
+
+### 重要片段怎麼看？
+
+| 程式片段 | 這一章要理解什麼 |
+|---|---|
+| `texts = {...}` | 從 artifact 取出 D001 的完整兩段新文字，確保文件不是只更新一半。 |
+| `expected_version=1` | 只允許在「我預期目前是版本 1」時更新；版本不符就拒絕。 |
+| `prepared=artifact` | 使用已驗證的向量與文字資料，避免拿不相符的向量更新。 |
+| `update_document(...)` | 在交易內鎖定、重查版本，並同步更新文字、hash、向量與版本。 |
+| `conn.commit()` | 確認整批更新成功後才提交；中途錯誤則由程式 rollback。 |
 
 ## 3. 固定 Agent prompt
 

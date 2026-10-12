@@ -1,7 +1,5 @@
 # 20 ANN Workshop
 
-![Ch20 流程圖](../diagrams/mariadb/ch20.svg)
-
 ## 概念
 VECTOR INDEX 可以提供 ANN 近似搜尋，但必須和 exact 結果及 EXPLAIN plan 對照；16 筆資料不能宣稱效能優勢。
 
@@ -20,6 +18,16 @@ with connect() as conn:
 print("exact =",[(r["chunk_id"],r["distance"]) for r in exact]); print("ann =",[(r["chunk_id"],r["distance"]) for r in ann])
 e={r["chunk_id"] for r in exact}; n={r["chunk_id"] for r in ann}; print("intersection_fraction =",len(e&n)/len(e) if e else None)
 ```
+
+### 重要片段怎麼看？
+
+| 程式片段 | 這一章要理解什麼 |
+|---|---|
+| `mode="exact"` | 完整計算的比較基準。 |
+| `mode="ann"` | 使用向量索引找近似候選。 |
+| `explain=False` | 取得實際結果，而不是 EXPLAIN plan。 |
+| `set(...)` | 計算 exact 與 ANN 結果的交集。 |
+| `intersection_fraction` | 本次查詢的交集比例，不是普遍準確率。 |
 
 ## Agent prompt
 > 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將完整程式原樣寫入並執行 `/tmp/ch20_ann.py`。程式用 `explain=False` 取得 exact/ANN 結果；再用 `search --explain` 命令取得 plans，確認 ANN 使用 `vector_idx`，exact 不使用 `vector_idx`（exact 可能使用 `document_id`）。不得 placeholders、捏造 plan、改 query/k 或讀 HackMD/repos。回報每一步 stdout/stderr/實際 exit code。

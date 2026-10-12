@@ -1,7 +1,5 @@
 # 21 篩選與評估 Workshop
 
-![Ch21 流程圖](../diagrams/mariadb/ch21.svg)
-
 ## 概念
 先用產品、分類和有效狀態篩出合格資料，再用 qrels 評估搜尋結果是否找對。
 
@@ -20,6 +18,16 @@ with connect() as conn:
   print(q,[r["chunk_id"] for r in rows])
  print(evaluate(conn,a,k=3))
 ```
+
+### 重要片段怎麼看？
+
+| 程式片段 | 這一章要理解什麼 |
+|---|---|
+| `for q in ("Q01", "Q08")` | 依序測試兩個已記錄的問題。 |
+| `case["category_id"]` | 取得問題的分類條件。 |
+| `search(..., category_id=...)` | 先套用分類與有效狀態條件。 |
+| `evaluate(conn, a, k=3)` | 用人工 qrels 評估是否找對。 |
+| `precision_at_k` / `recall_at_k` | 看 Top-K 命中與找回相關答案的比例。 |
 
 ## Baseline reset（必要時由教師確認）
 

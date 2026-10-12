@@ -4,8 +4,6 @@
 
 [上一節](18-vector-storage.md) · [下一節](20-ann.md)
 
-![Ch19 流程圖](diagrams/mariadb/ch19.svg)
-
 ## 1. SQL 自我檢查
 
 ```sql
@@ -34,6 +32,16 @@ for row in rows:
 assert len({row["chunk_id"] for row in rows}) == len(rows)
 assert all(rows[i]["distance"] <= rows[i+1]["distance"] for i in range(len(rows)-1))
 ```
+
+### 重要片段怎麼看？
+
+| 程式片段 | 這一章要理解什麼 |
+|---|---|
+| `recorded_query(artifact, "Q01")` | 取出課程預先記錄的問題與查詢向量；不在本章重新產生 embedding。 |
+| `search(..., k=3, mode="exact")` | 對合格候選做精確距離搜尋，取距離最小的 3 筆。 |
+| `row["chunk_id"]` | 讀出結果屬於哪個文字片段。 |
+| `row["distance"]` | 讀出查詢向量與該片段的距離；數字越小越接近。 |
+| `assert ...` | 把「沒有重複」與「距離遞增」變成可執行的驗收條件。 |
 
 ## 3. 固定 Agent prompt
 
