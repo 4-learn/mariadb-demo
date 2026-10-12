@@ -4,8 +4,6 @@
 
 [上一節](20-ann.md) · [下一節](22-consistency.md)
 
-![Ch21 流程圖](diagrams/mariadb/ch21.svg)
-
 ## 1. SQL 合格集合
 
 ```sql
@@ -37,6 +35,16 @@ with connect() as conn:
         print(case_id, [r["chunk_id"] for r in rows])
     print(evaluate(conn, artifact, k=3))
 ```
+
+### 重要片段怎麼看？
+
+| 程式片段 | 這一章要理解什麼 |
+|---|---|
+| `for case_id in ("Q01", "Q08")` | 依序測試兩個已記錄的問題，不需要先學會建立查詢。 |
+| `case["category_id"]` | 取得該問題允許搜尋的產品分類條件。 |
+| `search(..., category_id=...)` | 先套用分類與有效狀態條件，再做 exact 搜尋。 |
+| `evaluate(conn, artifact, k=3)` | 用 artifact 裡的人工 qrels，比對搜尋結果是否找對。 |
+| `precision_at_k` / `recall_at_k` | 分別看 Top-K 命中比例與找回相關答案的比例。 |
 
 ## 3. 固定 Agent prompt
 

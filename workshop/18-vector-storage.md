@@ -1,7 +1,5 @@
 # 18 向量入庫 Workshop
 
-![Ch18 流程圖](../diagrams/mariadb/ch18.svg)
-
 ## 概念
 把文字、版本、hash、模型資訊與向量一起存入 MariaDB，保留原文和向量的可追溯關係。
 
@@ -17,6 +15,16 @@ with connect() as conn:
  with conn.cursor() as cur:
   cur.execute("SELECT VEC_DISTANCE_COSINE(VEC_FromText(?),VEC_FromText(?))",(v,v)); print("self_distance =",cur.fetchone()[0])
 ```
+
+### 重要片段怎麼看？
+
+| 程式片段 | 這一章要理解什麼 |
+|---|---|
+| `json.dumps(...)` | 把向量整理成 MariaDB 可以解析的 JSON 文字。 |
+| `VEC_FromText(?)` | 把 JSON 文字轉成 MariaDB 的向量值。 |
+| `cur.execute(sql, (...))` | 用參數傳值，讓 SQL 與資料分開。 |
+| `fetchone()[0]` | 取回這次距離計算的結果。 |
+| `self_distance` | 向量和自己比較，應接近 `0`。 |
 
 ## Agent prompt
 > 你現在在 `~/workspace/mariadb-demo`。請一氣呵成完成 Ch18 Workshop，最後只回報 PASS 或 FAIL 與證據。

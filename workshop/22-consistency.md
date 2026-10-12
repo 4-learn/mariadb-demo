@@ -1,7 +1,5 @@
 # 22 一致性 Workshop
 
-![Ch22 流程圖](../diagrams/mariadb/ch22.svg)
-
 ## 概念
 文件更新時，必須在同一個交易中同步更新原文、版本、hash 與向量，確保它們不會互相不一致。
 
@@ -17,6 +15,16 @@ texts={c["chunk_id"]:c["text"] for c in a["updates"]["D001"]["chunks"]}
 with connect() as conn:
  result=update_document(conn,"D001",1,texts,prepared=a); print(result); conn.commit()
 ```
+
+### 重要片段怎麼看？
+
+| 程式片段 | 這一章要理解什麼 |
+|---|---|
+| `texts={...}` | 取出 D001 完整兩段新文字。 |
+| `expected_version=1` | 只允許預期版本仍是 1 時更新。 |
+| `prepared=a` | 使用已驗證的文字與向量資料。 |
+| `update_document(...)` | 同步更新文字、hash、向量與版本。 |
+| `conn.commit()` | 成功後提交；錯誤則 rollback。 |
 
 ## Agent prompt
 > 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"` 完成 Ch22 完整驗證；不得 placeholders、忽略版本衝突或讀 HackMD/repos。先用 `demo/21-reset-baseline.sql` 恢復 artifact baseline，再測 CLI 的 failure rollback、success、stale；最後再次 reset baseline，才執行 `/tmp/ch22_consistency.py`。每一步回報 stdout、stderr 與實際 exit code；保留真實錯誤。

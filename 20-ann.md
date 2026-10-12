@@ -4,8 +4,6 @@
 
 [上一節](19-vector-ranking.md) · [下一節](21-filters-evaluation.md)
 
-![Ch20 流程圖](diagrams/mariadb/ch20.svg)
-
 ## 1. 建索引並核對
 
 ```sql
@@ -34,6 +32,16 @@ print("ann =", [(r["chunk_id"], r["distance"]) for r in ann])
 exact_ids = {r["chunk_id"] for r in exact}
 print("intersection_fraction =", len(exact_ids & {r["chunk_id"] for r in ann}) / len(exact_ids) if exact_ids else None)
 ```
+
+### 重要片段怎麼看？
+
+| 程式片段 | 這一章要理解什麼 |
+|---|---|
+| `mode="exact"` | 使用完整計算的 exact 結果，作為比較基準。 |
+| `mode="ann"` | 使用向量索引尋找近似候選；不代表一定等於 exact。 |
+| `explain=False` | 取得實際搜尋結果，才有 `chunk_id` 與 `distance`。 |
+| `set(...)` | 把結果 ID 變成集合，方便計算 exact 與 ANN 的交集。 |
+| `intersection_fraction` | 這次查詢中 ANN 命中 exact 結果的比例；不是普遍準確率。 |
 
 ## 3. 固定 Agent prompt
 

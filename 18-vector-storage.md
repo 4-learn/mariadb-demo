@@ -4,8 +4,6 @@
 
 [上一節](17-embedding.md) · [下一節](19-vector-ranking.md)
 
-![Ch18 流程圖](diagrams/mariadb/ch18.svg)
-
 ## 1. SQL checkpoint 與結構
 
 ```sql
@@ -35,11 +33,27 @@ with connect() as conn:
         print("dimension =", len(artifact["chunks"][0]["embedding"]))
 ```
 
+### 重要片段怎麼看？
+
+| 程式片段 | 這一章要理解什麼 |
+|---|---|
+| `json.dumps(..., separators=(",", ":"))` | 把向量整理成 MariaDB 可以解析的 JSON 文字；不是手動修改向量。 |
+| `VEC_FromText(?)` | 把參數傳入的 JSON 文字轉成 MariaDB 的向量值。 |
+| `cur.execute(sql, (vector_json, vector_json))` | 用參數傳值，讓 SQL 與資料分開；兩個參數各代表一個向量。 |
+| `fetchone()[0]` | 取回這次距離計算的唯一結果。 |
+| `self_distance` | 同一個向量和自己比較，應接近 `0`，用來確認向量格式可被資料庫解析。 |
+
 正式寫入使用既有 `vector_course.py ingest`，同樣參數化並在單一 transaction 中寫入 16 筆。
 
 ## 3. 固定 Agent prompt
 
-> 你現在在 `~/workspace/mariadb-demo`。請一氣呵成完成 Ch18 Workshop，最後只回報 PASS 或 FAIL 與證據。\n> 1. 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將完整 code section 原樣寫入 `/tmp/ch18_storage.py` 並執行。\n> 2. 先用 `course_editor.cnf` 檢查 `chunk_vectors`：若不存在，執行 `demo/18-vector-storage.sql` 建表，再用課程 venv 執行 `vector_course.py ingest`；若已存在，不要 DROP、不要重跑 DDL、不要重跑 ingest。\n> 3. 不論哪一種情況，都執行 `vector_course.py check`。\n> 4. 用實際存在的 `course_editor.cnf` 執行 SQL，取得 `vector_count` 與 `mismatches`。\n> 5. 只有同時符合 `code_exit_code=0`、`check_exit_code=0`、`sql_exit_code=0`、`vector_count=16`、`mismatches=0` 才回報 `PASS`；否則回報 `FAIL`、失敗步驟與真實錯誤。\n> 不得 DROP、修改 artifact、拼接 SQL、讀 HackMD/repos 或讀取秘密。每一步回報實際命令、stdout、stderr、exit code；但不要因為已存在且一致而停下。
+> 你現在在 `~/workspace/mariadb-demo`。請一氣呵成完成 Ch18 Workshop，最後只回報 PASS 或 FAIL 與證據。
+> 1. 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將完整 code section 原樣寫入 `/tmp/ch18_storage.py` 並執行。
+> 2. 先用 `course_editor.cnf` 檢查 `chunk_vectors`：若不存在，執行 `demo/18-vector-storage.sql` 建表，再用課程 venv 執行 `vector_course.py ingest`；若已存在，不要 DROP、不要重跑 DDL、不要重跑 ingest。
+> 3. 不論哪一種情況，都執行 `vector_course.py check`。
+> 4. 用實際存在的 `course_editor.cnf` 執行 SQL，取得 `vector_count` 與 `mismatches`。
+> 5. 只有同時符合 `code_exit_code=0`、`check_exit_code=0`、`sql_exit_code=0`、`vector_count=16`、`mismatches=0` 才回報 `PASS`；否則回報 `FAIL`、失敗步驟與真實錯誤。
+> 不得 DROP、修改 artifact、拼接 SQL、讀 HackMD/repos 或讀取秘密。每一步回報實際命令、stdout、stderr、exit code；但不要因為已存在且一致而停下。
 
 ## 4. 執行與 SQL 驗證
 
