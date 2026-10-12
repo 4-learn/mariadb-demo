@@ -15,6 +15,16 @@ SELECT COUNT(*) AS vectors FROM information_schema.tables
 
 乾淨起點為 16 chunks 且 `chunk_vectors` 尚不存在。若上一輪練習已留下這張**練習表**，先用 `course_editor` 明確刪除後重建；不要刪除任何正式表。editor 建表、app 入庫，不使用 root。`VEC_FromText(?)` 的向量 JSON 必須是參數。
 
+### SQL 欄位怎麼看？
+
+| 欄位 | 簡單說明 | 預期 |
+|---|---|---|
+| `DATABASE()` | 目前使用哪個資料庫 | `mariadb_workshop_2026` |
+| `CURRENT_USER()` | 執行 SQL 的帳號 | 依課程帳號 |
+| `chunks` | 可入庫的文字片段數量 | `16` |
+| `vectors` / `vector_count` | 已建立或已入庫的向量數量 | `16` |
+| `mismatches` | 原文和向量 metadata 不一致筆數 | `0` |
+
 ## 2. 完整可執行 code section（唯讀解析）
 
 ```python

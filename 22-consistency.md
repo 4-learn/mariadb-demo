@@ -15,6 +15,17 @@ WHERE d.document_id='D001' ORDER BY c.chunk_id;
 
 乾淨起點是 D001/C001/C002 與 vectors 全版本 1；不要在其他 checkpoint 注入故障。
 
+### SQL 欄位怎麼看？
+
+| 欄位 | 簡單說明 | 預期 |
+|---|---|---|
+| `source_version` | 原文或向量目前版本 | 成功後 D001 為 `2` |
+| `chunk_id` | 被更新的文字片段 | `C001`、`C002` |
+| `vector_version` | 向量版本 | 和原文版本相同 |
+| `text_ok` | 原文 hash 是否正確 | `1` |
+
+故障 rollback 後，before 和 after 應該一樣；成功更新後，三種版本才一起變成 `2`。
+
 ## 2. 完整可執行 code section
 
 ```python
