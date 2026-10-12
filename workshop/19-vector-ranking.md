@@ -1,5 +1,7 @@
 # 19 精確 Top-K Workshop
 
+![Ch19 流程圖](../diagrams/mariadb/ch19.svg)
+
 ## 概念
 計算查詢向量與文件向量的 cosine distance，依距離由近到遠找出精確 Top-K。
 

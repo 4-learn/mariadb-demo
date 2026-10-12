@@ -1,5 +1,7 @@
 # 21 篩選與評估 Workshop
 
+![Ch21 流程圖](../diagrams/mariadb/ch21.svg)
+
 ## 概念
 先用產品、分類和有效狀態篩出合格資料，再用 qrels 評估搜尋結果是否找對。
 

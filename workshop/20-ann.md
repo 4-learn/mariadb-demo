@@ -1,5 +1,7 @@
 # 20 ANN Workshop
 
+![Ch20 流程圖](../diagrams/mariadb/ch20.svg)
+
 ## 概念
 VECTOR INDEX 可以提供 ANN 近似搜尋，但必須和 exact 結果及 EXPLAIN plan 對照；16 筆資料不能宣稱效能優勢。
 

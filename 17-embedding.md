@@ -4,6 +4,8 @@
 
 [上一節](16-import-quality.md) · [下一節](18-vector-storage.md)
 
+![Ch17 流程圖](diagrams/mariadb/ch17.svg)
+
 ## 1. SQL checkpoint
 
 ```sql

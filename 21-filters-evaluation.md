@@ -4,6 +4,8 @@
 
 [上一節](20-ann.md) · [下一節](22-consistency.md)
 
+![Ch21 流程圖](diagrams/mariadb/ch21.svg)
+
 ## 1. SQL 合格集合
 
 ```sql

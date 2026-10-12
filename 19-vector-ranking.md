@@ -4,6 +4,8 @@
 
 [上一節](18-vector-storage.md) · [下一節](20-ann.md)
 
+![Ch19 流程圖](diagrams/mariadb/ch19.svg)
+
 ## 1. SQL 自我檢查
 
 ```sql
