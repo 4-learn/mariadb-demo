@@ -1,6 +1,6 @@
 # 20 ANN：索引是近似候選，不是正確答案
 
-> **概念**：B-tree 做條件查找，VECTOR INDEX 做近似鄰近搜尋。ANN 必須以 exact 結果作對照；16 筆資料不能宣稱效能優勢。
+> **概念**：VECTOR INDEX 可以提供 ANN 近似搜尋，但必須和 exact 結果及 EXPLAIN plan 對照；16 筆資料不能宣稱效能優勢。
 
 [上一節](19-vector-ranking.md) · [下一節](21-filters-evaluation.md)
 

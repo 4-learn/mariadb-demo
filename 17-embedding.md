@@ -1,6 +1,6 @@
 # 17 Embedding：把文字變成可追溯的向量
 
-> **概念**：embedding 是固定模型把文字映射成數字；它不是答案，也不能跨模型混用。本節固定 `BAAI/bge-small-zh-v1.5` revision `7999e1d3359715c523056ef9478215996d62a620`、512 維、文件不加 instruction、query 使用模型卡 instruction，並做 L2 normalization。
+> **概念**：把文字轉成固定維度的向量，讓電腦能用數值表示文字意義。本節固定 `BAAI/bge-small-zh-v1.5` revision `7999e1d3359715c523056ef9478215996d62a620`、512 維、文件不加 instruction、query 使用模型卡 instruction，並做 L2 normalization。
 
 [上一節](16-import-quality.md) · [下一節](18-vector-storage.md)
 

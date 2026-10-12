@@ -1,6 +1,6 @@
 # 19 精確 Top-K：先把每一筆距離算清楚
 
-> **概念**：cosine distance 越小越近；exact search 先建立合格集合，再按 `(distance ASC, chunk_id ASC)` 排序。Top-k 是候選，不是正確率；ANN 尚未在本節使用。
+> **概念**：計算查詢向量與文件向量的 cosine distance，依距離由近到遠找出精確 Top-K。
 
 [上一節](18-vector-storage.md) · [下一節](20-ann.md)
 
