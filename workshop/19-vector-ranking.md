@@ -7,9 +7,9 @@ Cosine distance 越小越近；exact 依 `(distance ASC, chunk_id ASC)` 排序�
 ```python
 import os
 from pathlib import Path
-from embedding_course import load_artifact,recorded_query
+from embedding_course import load_artifact
 from course_db import connect
-from vector_course import search
+from vector_course import recorded_query, search
 a=load_artifact(Path(os.environ.get("VECTOR_ARTIFACT",str(Path.home()/"mariadb-vectors.json"))))
 case,v=recorded_query(a,"Q01")
 with connect() as conn: rows=search(conn,v,k=3,category_id=case["category_id"],mode="exact",explain=False)
