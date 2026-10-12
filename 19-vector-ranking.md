@@ -19,9 +19,9 @@ C001 自我距離應接近 0，且排序鍵明確。
 ```python
 import os
 from pathlib import Path
-from embedding_course import load_artifact, recorded_query
+from embedding_course import load_artifact
 from course_db import connect
-from vector_course import search
+from vector_course import recorded_query, search
 
 artifact = load_artifact(Path(os.environ.get("VECTOR_ARTIFACT", str(Path.home()/"mariadb-vectors.json"))))
 case, query_vector = recorded_query(artifact, "Q01")
