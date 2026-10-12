@@ -4,8 +4,6 @@
 
 [上一節](16-import-quality.md) · [下一節](18-vector-storage.md)
 
-![Ch17 流程圖](diagrams/mariadb/ch17.svg)
-
 ## 1. SQL checkpoint
 
 ```sql
@@ -38,6 +36,17 @@ print("chunks =", len(artifact["chunks"]), "queries =", len(artifact["queries"])
 print("model_revision =", artifact["metadata"]["model_revision"])
 print("embedding_mode = recorded-artifact")
 ```
+
+### 重要片段怎麼看？
+
+| 程式片段 | 這一章要理解什麼 |
+|---|---|
+| `load_artifact(path)` | 讀取教師預先產生的向量 artifact；本章不是即時訓練模型。 |
+| `for item in artifact["chunks"]` | 逐一檢查每個文字片段的向量。 |
+| `validate_vector(vector)` | 確認向量格式、數值與維度符合課程規則。 |
+| `len(item["embedding"])` | 計算每個向量有幾個數字；本章應為 `512`。 |
+| `squared_norm` | 檢查向量長度平方；接近 `1` 代表完成 L2 normalization。 |
+| `model_revision` | 記錄產生向量的模型版本，讓結果可以追溯。 |
 
 ## 3. 固定 Agent prompt（可選）
 
