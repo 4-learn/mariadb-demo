@@ -4,6 +4,8 @@
 
 [上一節](17-embedding.md) · [下一節](19-vector-ranking.md)
 
+![Ch18 流程圖](diagrams/mariadb/ch18.svg)
+
 ## 1. SQL checkpoint 與結構
 
 ```sql

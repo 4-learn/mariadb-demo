@@ -1,5 +1,7 @@
 # 18 向量入庫 Workshop
 
+![Ch18 流程圖](../diagrams/mariadb/ch18.svg)
+
 ## 概念
 把文字、版本、hash、模型資訊與向量一起存入 MariaDB，保留原文和向量的可追溯關係。
 

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" lang="zh-Hant" viewBox="0 0 1000 360" role="img" aria-labelledby="ch17-title ch17-desc">
+  <title id="ch17-title">Ch17 文字變成向量</title>
+  <desc id="ch17-desc">文字輸入固定的 embedding 模型，產生 512 維向量，供後續資料庫計算使用。</desc>
+  <defs>
+    <marker id="ch17-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4f5d75"/>
+    </marker>
+    <marker id="ch17-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#bf4520"/>
+    </marker>
+  </defs>
+  <rect width="1000" height="360" fill="#f5f5f5"/>
+  <text x="70" y="52" fill="#5a6580" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="600" letter-spacing="1.2">01 · INPUT</text>
+  <text x="405" y="52" fill="#5a6580" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="600" letter-spacing="1.2">02 · TRANSFORM</text>
+  <text x="745" y="52" fill="#5a6580" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="600" letter-spacing="1.2">03 · OUTPUT</text>
+
+  <path d="M300 170 H390" fill="none" stroke="#4f5d75" stroke-width="2" marker-end="url(#ch17-arrow)"/>
+  <path d="M665 170 H735" fill="none" stroke="#bf4520" stroke-width="2" marker-end="url(#ch17-arrow-accent)"/>
+
+  <rect x="70" y="105" width="230" height="130" rx="6" fill="#f5f5f5" stroke="#2d3142" stroke-width="1.5"/>
+  <text x="100" y="155" fill="#2d3142" font-family="Inter,'Noto Sans TC',system-ui,sans-serif" font-size="20" font-weight="650">一段文字</text>
+  <text x="100" y="184" fill="#5a6580" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12">「如何重設感測器？」</text>
+  <text x="100" y="212" fill="#5a6580" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12">human-readable text</text>
+
+  <rect x="390" y="90" width="275" height="160" rx="6" fill="#f5f5f5" stroke="#2d3142" stroke-width="1.5"/>
+  <rect x="414" y="112" width="72" height="22" rx="2" fill="#bf4520"/>
+  <text x="450" y="127" text-anchor="middle" fill="#f5f5f5" font-family="Inter,'Noto Sans TC',system-ui,sans-serif" font-size="11" font-weight="700">MODEL</text>
+  <text x="420" y="174" fill="#2d3142" font-family="Inter,'Noto Sans TC',system-ui,sans-serif" font-size="20" font-weight="650">Embedding 模型</text>
+  <text x="420" y="204" fill="#5a6580" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12">固定 revision · 同一套規則</text>
+  <text x="420" y="226" fill="#5a6580" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12">文字 → 數值表示</text>
+
+  <rect x="735" y="105" width="195" height="130" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="2"/>
+  <text x="765" y="155" fill="#2d3142" font-family="Inter,'Noto Sans TC',system-ui,sans-serif" font-size="20" font-weight="650">向量</text>
+  <text x="765" y="184" fill="#5a6580" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12">512 個數字</text>
+  <text x="765" y="212" fill="#5a6580" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12">可計算、可追溯</text>
+
+  <rect x="354" y="286" width="292" height="38" rx="4" fill="#f5f5f5" stroke="rgba(45,49,66,0.16)"/>
+  <text x="500" y="311" text-anchor="middle" fill="#4f5d75" font-family="Georgia,'Noto Serif TC',serif" font-size="18" font-style="italic">先把「意義」變成可計算的數字</text>
+</svg>

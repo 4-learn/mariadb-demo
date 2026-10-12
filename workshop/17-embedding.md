@@ -1,5 +1,7 @@
 # 17 Embedding Workshop
 
+![Ch17 流程圖](../diagrams/mariadb/ch17.svg)
+
 ## 概念
 把文字轉成固定維度的向量，讓電腦能用數值表示文字意義；本練習使用 recorded artifact，不冒充 live encode。
 

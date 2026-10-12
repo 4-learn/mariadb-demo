@@ -4,6 +4,8 @@
 
 [上一節](19-vector-ranking.md) · [下一節](21-filters-evaluation.md)
 
+![Ch20 流程圖](diagrams/mariadb/ch20.svg)
+
 ## 1. 建索引並核對
 
 ```sql
