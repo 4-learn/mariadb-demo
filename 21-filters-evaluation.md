@@ -90,15 +90,15 @@ WHERE d.status='active' AND EXISTS (SELECT 1 FROM product_documents pd JOIN prod
 
 | Output | 代表什麼 | 通過／判讀方式 |
 |---|---|---|
-| `exit_code` | 完整 Python 篩選與評估程式是否成功 | `0` |
-| `evaluate_exit_code` | qrels 評估是否成功 | `0` |
-| `category_id` | 本次搜尋使用的資料範圍 | 由測試案例提供；不是評估結果 |
-| `exact_ids` | exact 搜尋找出的 Top-K 候選 | 只在合格資料中搜尋 |
-| `relevant_ids` | 人工 qrels 定義的相關片段 | 用來核對搜尋結果 |
-| `precision_at_k` | Top-K 中有多少筆真的相關 | `no_answer=True` 時為 `NULL` |
-| `recall_at_k` | 找回多少相關答案 | `no_answer=True` 時為 `NULL` |
-| `returned_on_no_answer` | 明知沒有答案時仍回傳幾筆 | 應如實記錄，不能假裝找到答案 |
-| `ann_overlap_with_exact` | ANN 與 exact 結果的重疊比例 | 本次結果，不代表普遍準確率 |
+| `exit_code` | Linux 執行 Python 後回報的結果。`0` 代表程式跑完，非 `0` 代表中途發生錯誤。 | 先確認是 `0`；若不是，先看 stderr 的真實錯誤，不要直接說搜尋失敗原因。 |
+| `evaluate_exit_code` | `vector_course.py evaluate` 命令的結果；它把八個問題的搜尋結果，和 artifact 裡預先準備的人工答案逐一比較。 | `0` 代表評估程式完成；仍要閱讀每題結果，不能只看這個數字。 |
+| `category_id` | 資料表中的分類編號。搜尋時只看這個分類和 active 文件中的 chunks；它是「去哪裡找」的條件，不是答案。 | 確認和測試問題設定一致；不要自行改分類。 |
+| `exact_ids` | exact 搜尋挑出的 chunk 編號，例如 `C004`、`C003`。這些是資料庫找出的候選文字片段，不是已寫好的回答。 | 確認結果來自指定 category 的 active 資料，並保留實際順序。 |
+| `relevant_ids` | 人類事先判定「和這個問題有關」的 chunk 編號，也就是這題的參考答案清單。 | 只用來和 `exact_ids` 比較；不可從搜尋排名倒推或修改它。 |
+| `precision_at_k` | 找出的前 K 筆中，有幾筆真的在 `relevant_ids` 裡。例：找 3 筆，2 筆相關，就是 `2/3`。 | 有答案的題目才計算；數字越高表示前 K 筆混入的無關片段越少。 |
+| `recall_at_k` | 人類標記的相關片段中，前 K 筆找回了幾筆。例：有 2 筆相關、找回 1 筆，就是 `1/2`。 | 有答案的題目才計算；數字越高表示漏掉的相關片段越少。 |
+| `returned_on_no_answer` | 人類答案清單是空的時，搜尋仍回傳了幾筆候選；用來檢查會不會把「沒有答案」誤當成有答案。 | 如實記錄；不能因為文字相似就宣稱找到了答案。 |
+| `ann_overlap_with_exact` | ANN 和 exact 找到相同 chunk 的比例。例如 exact 有 3 筆，ANN 有 2 筆相同，比例就是 `2/3`。 | 只描述這次資料與這次問題；不能據此宣稱 ANN 一定更快或永遠正確。 |
 
 成功不是只看 `exit_code=0`；還要保留 Q01～Q08 的實際結果、空 qrels 行為與 SQL 篩選結果。
 
