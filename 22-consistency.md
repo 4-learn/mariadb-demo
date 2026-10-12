@@ -47,6 +47,33 @@ with connect() as conn:
     print(result)
 ```
 
+## 3. `update_document()` 內部流程摘要（閱讀用，不要另外執行）
+
+上面的完整程式只呼叫 `update_document()`。真正的 transaction、commit 與 rollback 已經封裝在這個函式裡。下面是把內部邏輯縮短後的閱讀版，不是第二份要複製執行的完整程式。
+
+```python
+# 閱讀用的簡化流程；不要把這段當成可獨立執行的程式
+try:
+    確認 expected_version 仍然正確
+    鎖定 D001
+
+    更新 chunk 1：正文、hash、版本、向量
+    更新 chunk 2：正文、hash、版本、向量
+
+    確認文件與兩個 chunk 一致
+    conn.commit()       # 兩個 chunk 都成功
+except Exception:
+    conn.rollback()     # 任何一步失敗，全部取消
+    raise
+```
+
+| 路徑 | 發生什麼事 | 最後結果 |
+|---|---|---|
+| 成功路徑 | 兩個 chunk 都更新成功，檢查也通過 | `commit`，版本一起前進 |
+| 錯誤路徑 | 任一 chunk、版本檢查或一致性檢查失敗 | `rollback`，回到操作前狀態 |
+
+Workshop 會故意在第一個 chunk 寫入後製造失敗，再用 before/after snapshot 證明第一個 chunk 也沒有留下半份更新。
+
 ### 重要片段怎麼看？
 
 | 程式片段 | 這一章要理解什麼 |
