@@ -1,7 +1,5 @@
 # 17 Embedding Workshop
 
-![Ch17 流程圖](../diagrams/mariadb/ch17.svg)
-
 ## 概念
 把文字轉成固定維度的向量，讓電腦能用數值表示文字意義；本練習使用 recorded artifact，不冒充 live encode。
 
@@ -22,6 +20,17 @@ print("chunks =",len(a["chunks"]),"queries =",len(a["queries"]))
 print("model_revision =",a["metadata"]["model_revision"])
 print("embedding_mode = recorded-artifact")
 ```
+
+### 重要片段怎麼看？
+
+| 程式片段 | 這一章要理解什麼 |
+|---|---|
+| `load_artifact(p)` | 讀取教師預先產生的向量 artifact；不是即時訓練模型。 |
+| `for c in a["chunks"]` | 逐一檢查每個文字片段的向量。 |
+| `validate_vector(c["embedding"])` | 確認向量格式、數值與維度符合規則。 |
+| `len(a["chunks"][0]["embedding"])` | 取得向量維度；本章應為 `512`。 |
+| `squared_norm` | 檢查向量長度平方；接近 `1` 代表完成 normalization。 |
+| `model_revision` | 記錄產生向量的模型版本，讓結果可追溯。 |
 
 ## Agent prompt
 > 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，寫入並執行 `/tmp/ch17_embedding.py`；不得 placeholders、改 revision 或讀 HackMD/repos。回報 stdout、stderr、exit code。
