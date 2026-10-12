@@ -86,4 +86,20 @@ SELECT COUNT(*) AS eligible_category_999 FROM chunks c JOIN documents d ON d.doc
 WHERE d.status='active' AND EXISTS (SELECT 1 FROM product_documents pd JOIN products p ON p.product_id=pd.product_id WHERE pd.document_id=d.document_id AND p.status='active' AND p.category_id=999);
 ```
 
+### Workshop Output 怎麼看？
+
+| Output | 代表什麼 | 通過／判讀方式 |
+|---|---|---|
+| `exit_code` | 完整 Python 篩選與評估程式是否成功 | `0` |
+| `evaluate_exit_code` | qrels 評估是否成功 | `0` |
+| `category_id` | 本次搜尋使用的資料範圍 | 由測試案例提供；不是評估結果 |
+| `exact_ids` | exact 搜尋找出的 Top-K 候選 | 只在合格資料中搜尋 |
+| `relevant_ids` | 人工 qrels 定義的相關片段 | 用來核對搜尋結果 |
+| `precision_at_k` | Top-K 中有多少筆真的相關 | `no_answer=True` 時為 `NULL` |
+| `recall_at_k` | 找回多少相關答案 | `no_answer=True` 時為 `NULL` |
+| `returned_on_no_answer` | 明知沒有答案時仍回傳幾筆 | 應如實記錄，不能假裝找到答案 |
+| `ann_overlap_with_exact` | ANN 與 exact 結果的重疊比例 | 本次結果，不代表普遍準確率 |
+
+成功不是只看 `exit_code=0`；還要保留 Q01～Q08 的實際結果、空 qrels 行為與 SQL 篩選結果。
+
 Q03 relevant 可為空、Q04 可含 C003/C004；R 空時 precision／recall 為 NULL，另記 returned_on_no_answer。交件附 SQL、Q01/Q08 IDs、八題實際結果、退出碼與一個計算。
