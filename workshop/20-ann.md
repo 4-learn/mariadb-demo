@@ -1,7 +1,7 @@
 # 20 ANN Workshop
 
 ## 概念
-VECTOR INDEX 是近似候選；exact 是基準。ANN 必須由 EXPLAIN 證明使用 `vector_idx`。
+VECTOR INDEX 可以提供 ANN 近似搜尋，但必須和 exact 結果及 EXPLAIN plan 對照；16 筆資料不能宣稱效能優勢。
 
 ## 完整程式 `/tmp/ch20_ann.py`
 ```python

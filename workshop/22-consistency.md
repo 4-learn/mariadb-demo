@@ -1,7 +1,7 @@
 # 22 一致性 Workshop
 
 ## 概念
-向量先在交易外計算；交易內鎖文件並重查 expected_version，再完整更新文字/hash/vector。故障 rollback，stale 拒絕。
+文件更新時，必須在同一個交易中同步更新原文、版本、hash 與向量，確保它們不會互相不一致。
 
 ## 完整程式 `/tmp/ch22_consistency.py`
 ```python

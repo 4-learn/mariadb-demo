@@ -1,7 +1,7 @@
 # 17 Embedding Workshop
 
 ## 概念
-Embedding 是固定模型輸出的 512 維數字；本練習使用 recorded artifact，不冒充 live encode。
+把文字轉成固定維度的向量，讓電腦能用數值表示文字意義；本練習使用 recorded artifact，不冒充 live encode。
 
 ## 完整程式
 將主課 code section 原樣存成 `/tmp/ch17_embedding.py`（無 placeholders）：

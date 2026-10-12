@@ -1,7 +1,7 @@
 # 18 向量入庫 Workshop
 
 ## 概念
-`VECTOR(512)` 由參數化 `VEC_FromText(?)` 解析；FK 仍須搭配 version/hash/metadata。
+把文字、版本、hash、模型資訊與向量一起存入 MariaDB，保留原文和向量的可追溯關係。
 
 ## 完整程式 `/tmp/ch18_storage.py`
 ```python

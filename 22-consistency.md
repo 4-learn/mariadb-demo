@@ -1,6 +1,6 @@
 # 22 原文與向量一致性：整份文件一起更新
 
-> **概念**：向量在交易外計算；交易內鎖文件、重查 expected_version，再一次更新兩段文字/hash/vector 與文件版本。任何錯誤 rollback；stale 更新拒絕。
+> **概念**：文件更新時，必須在同一個交易中同步更新原文、版本、hash 與向量，確保它們不會互相不一致。
 
 [上一節](21-filters-evaluation.md) · [下一節](23-integration.md)
 

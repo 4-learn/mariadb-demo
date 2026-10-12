@@ -1,6 +1,6 @@
 # 18 向量入庫：原文、版本與座標對得起來
 
-> **概念**：`VECTOR(512)` 是資料庫欄位，不是任意 JSON。PK/FK 只保證關聯；source version、content hash、model metadata 才能證明向量對應目前原文。DDL 與 ingest 權限、交易邊界要分開。
+> **概念**：把文字、版本、hash、模型資訊與向量一起存入 MariaDB，保留原文和向量的可追溯關係。
 
 [上一節](17-embedding.md) · [下一節](19-vector-ranking.md)
 

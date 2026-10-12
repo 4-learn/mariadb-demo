@@ -1,7 +1,7 @@
 # 19 精確 Top-K Workshop
 
 ## 概念
-Cosine distance 越小越近；exact 依 `(distance ASC, chunk_id ASC)` 排序，Top-k 仍是候選。
+計算查詢向量與文件向量的 cosine distance，依距離由近到遠找出精確 Top-K。
 
 ## 完整程式 `/tmp/ch19_ranking.py`
 ```python
