@@ -17,26 +17,27 @@ with connect() as conn:
 ```
 
 ## Agent prompt
-> 你現在在 `~/workspace/mariadb-demo`。請完成整個 Ch18 Workshop，不要只執行第一段 Python：
-> 1. 先檢查 `chunk_vectors` 是否已存在；若存在，先停下並回報，不要自行 DROP。只有教師確認後，才可用 `course_editor` 清理練習表，再執行 `demo/18-vector-storage.sql`。
-> 2. 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將完整 code section 原樣寫入 `/tmp/ch18_storage.py` 並執行。
-> 3. 依序執行 `vector_course.py ingest`、`vector_course.py check`，兩者都使用同一個課程 venv。
-> 4. 使用實際存在且教師指定的 `.cnf` 執行 SQL；不要猜測 `mariadb-course-app.cnf`。
-> 5. 確認 `vector_count=16`、`mismatches=0`。
-> 不得加 placeholders、拼接 SQL、修改 artifact 或讀 HackMD/repos。每一步都回報實際命令、stdout、stderr、exit code；任何一步失敗都保留真實錯誤，不要假裝成功。
+> 你現在在 `~/workspace/mariadb-demo`。請一氣呵成完成 Ch18 Workshop，最後只回報 PASS 或 FAIL 與證據。
+> 1. 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將完整 code section 原樣寫入 `/tmp/ch18_storage.py` 並執行。
+> 2. 先用 `course_editor.cnf` 檢查 `chunk_vectors`：若不存在，執行 `demo/18-vector-storage.sql` 建表，再用課程 venv 執行 `vector_course.py ingest`；若已存在，不要 DROP、不要重跑 DDL、不要重跑 ingest。
+> 3. 不論哪一種情況，都執行 `vector_course.py check`。
+> 4. 用實際存在的 `course_editor.cnf` 執行 SQL，取得 `vector_count` 與 `mismatches`。
+> 5. 只有同時符合 `code_exit_code=0`、`check_exit_code=0`、`sql_exit_code=0`、`vector_count=16`、`mismatches=0` 才回報 `PASS`；否則回報 `FAIL`、失敗步驟與真實錯誤。
+> 不得 DROP、修改 artifact、拼接 SQL、讀 HackMD/repos 或讀取秘密。每一步回報實際命令、stdout、stderr、exit code；但不要因為已存在且一致而停下。
 
 ```bash
-# 0. 先確認練習表；若已存在，停止並請教師確認，不可自行 DROP。
-mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 -e "SHOW TABLES LIKE 'chunk_vectors';"
-# 教師確認乾淨後才建立向量表（使用 course_editor）。
-mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/18-vector-storage.sql; rc=$?; echo "ddl_exit_code=$rc"
 # 1. code section
 PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch18_storage.py; rc=$?; echo "code_exit_code=$rc"
-# 2. 寫入 artifact（使用課程 venv）
-PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python vector_course.py ingest --artifact "$HOME/mariadb-vectors.json"; rc=$?; echo "ingest_exit_code=$rc"
-# 4. 執行完整性檢查
+# 2. 只有 chunk_vectors 不存在時才建表與 ingest；已存在時跳過。
+if mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 -N -e "SHOW TABLES LIKE 'chunk_vectors';" | grep -qx chunk_vectors; then
+  echo "chunk_vectors exists; skip DDL and ingest"
+else
+  mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/18-vector-storage.sql; rc=$?; echo "ddl_exit_code=$rc"
+  PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python vector_course.py ingest --artifact "$HOME/mariadb-vectors.json"; rc=$?; echo "ingest_exit_code=$rc"
+fi
+# 3. 不論是否已存在，都執行完整性檢查
 PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python vector_course.py check; rc=$?; echo "check_exit_code=$rc"
-# 5. SQL 交叉驗證
+# 4. SQL 交叉驗證
 mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 -e "SELECT COUNT(*) AS vector_count FROM chunk_vectors; SELECT COUNT(*) AS mismatches FROM chunks c JOIN chunk_vectors v USING(chunk_id) WHERE c.source_version<>v.source_version OR BINARY c.content_hash<>BINARY v.content_hash;"; rc=$?; echo "sql_exit_code=$rc"
 ```
 

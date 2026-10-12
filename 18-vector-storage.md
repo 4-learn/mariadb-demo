@@ -37,7 +37,7 @@ with connect() as conn:
 
 ## 3. 固定 Agent prompt
 
-> 你現在在 `~/workspace/mariadb-demo`。請完成整個 Ch18 Workshop，不要只執行第一段 Python：\n> 1. 先檢查 `chunk_vectors` 是否已存在；若存在，請先停下並回報，不要自行 DROP。只有教師確認後，才可使用 `course_editor` 執行 `DROP TABLE chunk_vectors`，再執行 `demo/18-vector-storage.sql` 建立練習表。\n> 2. 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將完整 code section 原樣寫入 `/tmp/ch18_storage.py` 並執行。\n> 3. 依序執行 `vector_course.py ingest`、`vector_course.py check`，兩者都必須使用同一個課程 venv。\n> 4. 使用實際存在且教師指定的 `.cnf` 執行下方 SQL；不要猜測 `mariadb-course-app.cnf`。\n> 5. 確認 `vector_count=16`、`mismatches=0`。\n> 不得加 placeholders、拼接 SQL、修改 artifact 或讀 HackMD/repos。每一步都回報實際命令、stdout、stderr、exit code；任何一步失敗都保留真實錯誤，不要假裝成功。
+> 你現在在 `~/workspace/mariadb-demo`。請一氣呵成完成 Ch18 Workshop，最後只回報 PASS 或 FAIL 與證據。\n> 1. 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將完整 code section 原樣寫入 `/tmp/ch18_storage.py` 並執行。\n> 2. 先用 `course_editor.cnf` 檢查 `chunk_vectors`：若不存在，執行 `demo/18-vector-storage.sql` 建表，再用課程 venv 執行 `vector_course.py ingest`；若已存在，不要 DROP、不要重跑 DDL、不要重跑 ingest。\n> 3. 不論哪一種情況，都執行 `vector_course.py check`。\n> 4. 用實際存在的 `course_editor.cnf` 執行 SQL，取得 `vector_count` 與 `mismatches`。\n> 5. 只有同時符合 `code_exit_code=0`、`check_exit_code=0`、`sql_exit_code=0`、`vector_count=16`、`mismatches=0` 才回報 `PASS`；否則回報 `FAIL`、失敗步驟與真實錯誤。\n> 不得 DROP、修改 artifact、拼接 SQL、讀 HackMD/repos 或讀取秘密。每一步回報實際命令、stdout、stderr、exit code；但不要因為已存在且一致而停下。
 
 ## 4. 執行與 SQL 驗證
 
