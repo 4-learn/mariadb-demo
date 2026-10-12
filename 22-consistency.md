@@ -37,11 +37,12 @@ from vector_course import update_document
 
 artifact = load_artifact(Path(os.environ.get("VECTOR_ARTIFACT", str(Path.home()/"mariadb-vectors.json"))))
 texts = {c["chunk_id"]: c["text"] for c in artifact["updates"]["D001"]["chunks"]}
+assert len(texts) == 2
+print("將一起更新的 chunks =", sorted(texts))
+
 with connect() as conn:
-    # update_document 內部會：
-    # 1. 更新兩個 chunk 的正文、hash、版本與向量
-    # 2. 全部成功才 commit
-    # 3. 任一步失敗就 rollback
+    # 這一次函式呼叫會把兩個 chunk 一起更新：
+    # 正文、hash、版本與向量，全部成功才 commit；任一步失敗就 rollback。
     result = update_document(conn, "D001", 1, texts, prepared=artifact)
     print(result)
 ```
