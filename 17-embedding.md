@@ -57,10 +57,12 @@ print("embedding_mode = recorded-artifact")
 | `for item in artifact["chunks"]` | 逐一檢查每個文字片段的向量。 |
 | `validate_vector(vector)` | 確認向量格式、數值與維度符合課程規則。 |
 | `len(item["embedding"])` | 計算每個向量有幾個數字；本章應為 `512`。 |
-| `squared_norm` | 檢查向量長度平方；接近 `1` 代表完成 L2 normalization。 |
+| `squared_norm` | 向量大小的檢查數字；接近 `1` 表示已調成標準大小，可以公平比較距離。 |
 | `model_revision` | 記錄產生向量的模型版本，讓結果可以追溯。 |
 
 ## 3. 固定 Agent prompt（可選）
+
+> 使用 `/home/yillkid/mariadb-course-venv/bin/python`，設定 `PYTHONPATH="$PWD"`，把完整程式寫入 `/tmp/ch17_embedding.py` 後執行；不可新增 placeholders、不可改模型 revision、不可讀取 HackMD 或 repos。命令：`PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch17_embedding.py`。回報實際 stdout、stderr 與 exit code。
 
 > 使用 `/home/yillkid/mariadb-course-venv/bin/python`，設定 `PYTHONPATH="$PWD"`，把完整程式寫入 `/tmp/ch17_embedding.py` 後執行；不可新增 placeholders、不可改模型 revision、不可讀取 HackMD 或 repos。命令：`PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch17_embedding.py`。回報實際 stdout、stderr 與 exit code。
 
