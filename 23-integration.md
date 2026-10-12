@@ -5,6 +5,27 @@
 [上一節](22-consistency.md) · [下一節](24-acceptance.md)
 
 
+## 你已經學過什麼？
+
+| 已學過 | 本次怎麼用 |
+|---|---|
+| Ch17 artifact 與 query vector | 使用已準備好的固定問題向量；不假裝重新產生模型結果。 |
+| Ch19 exact Top-K | 找出最接近的候選文字片段。 |
+| Ch21 `category_id` 篩選 | 先縮小搜尋範圍，再找候選。 |
+| Ch22 版本與 hash | 把候選對回正確版本的原文。 |
+| Ch10 Python 連線 | 讓 CLI 連到 MariaDB。 |
+
+## 本次新增什麼？
+
+本次只新增四件事：
+
+```text
+把命令列輸入接到既有搜尋功能
+把結果印成 JSON
+遇到沒有答案或錯誤時誠實停止
+查詢結束後關閉資料庫連線
+```
+
 ## 學習目標
 
 - 從輸入問題一路追蹤到 embedding、SQL、原文與版本。
@@ -90,6 +111,21 @@ python vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q0
 ---
 
 ## Workshop
+
+### 這個 Workshop 要展示什麼？
+
+它展示「一個命令列工具如何把既有功能串起來」，不是要求學生訓練模型，也不是讓 LLM 自動回答設備問題。
+
+### 成功條件
+
+```text
+Q01：顯示實際問題、來源 metadata、原文版本與候選 rows
+Q05：保留候選，但說明沒有適用型號答案
+Q08：篩選後 rows=[]
+Q99：查詢前拒絕，非零退出，不偷偷使用 Q01
+所有候選：包含 chunk_id、document_id、source_version、text、distance
+```
+
 
 ### 題目
 

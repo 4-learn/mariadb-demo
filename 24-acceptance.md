@@ -5,6 +5,29 @@
 [上一節](23-integration.md) · [模組作業](homework/22-search.md)
 
 
+## 你已經學過什麼？
+
+| 已學過 | 本次怎麼用 |
+|---|---|
+| Ch12 transaction / rollback | 故意中途失敗，確認資料全部恢復。 |
+| Ch14 EXPLAIN | 保存 exact 與 ANN 的實際查詢計畫。 |
+| Ch15 backup / restore | 理解資料恢復，但本次不直接覆蓋資料庫。 |
+| Ch18 metadata | 比對 hash、模型版本與向量內容。 |
+| Ch20 exact / ANN | 確認 ANN 是否真的使用向量 INDEX。 |
+| Ch21 qrels 評估 | 保存八題實際結果，不只看漂亮畫面。 |
+| Ch22 一致性更新 | 驗證原文、版本、hash、向量一起變更。 |
+
+## 本次新增什麼？
+
+本次只新增四件事：
+
+```text
+操作前先拍照（before snapshot）
+故意製造失敗，確認資料沒有半改
+測試舊版本不能覆蓋新版本（stale）
+把結果整理成別人可以重做的驗收報告
+```
+
 ## 學習目標
 
 - 用明確輸入、執行指令及可失敗判準整理驗收。
@@ -95,6 +118,23 @@ update_document(conn, "D001", 2, original, prepared=artifact)
 ---
 
 ## Workshop
+
+### 這個 Workshop 要展示什麼？
+
+它展示「如何用 before/after 證據驗證搜尋工具」，不是只展示一張成功畫面。
+
+### 成功條件
+
+```text
+完整檢查依實際輸出完成
+交易故障：before == after
+stale：舊版本更新被拒，after 不變
+成功更新：D001 版本變成 2
+還原後：D001 版本變成 3，原文、hash、向量 bytes 恢復
+ANN：有實際 plan 才算通過，否則明示 ANN NOT TESTED
+未驗證項目：明確列出，不冒充通過
+```
+
 
 ### 題目
 
