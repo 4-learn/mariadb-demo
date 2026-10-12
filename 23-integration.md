@@ -86,7 +86,9 @@ Q08 要保留空結果；Q99 必須在查詢前以非零退出拒絕。
 ## 範例程式碼
 
 - [小型完整 CLI](demo/23-integration.py)、[功能完整 CLI](vector_course.py)。
-- [模型／artifact 程式](embedding_course.py)、[本節解答](workshop/23-integration.md)。
+- [模型／artifact 程式](embedding_course.py)。
+
+> **教師提示**：Workshop 解答不放在學生課綱連結中；請先完成練習，再依教師提供的解答檢查。
 
 ---
 
@@ -187,16 +189,18 @@ Q99：查詢前拒絕，非零退出，不偷偷使用 Q01
 3. 執行 Q05 與 Q08，分別說明「有候選但沒有適用型號答案」及「篩選後零候選」。
 4. 嘗試 `--case Q99`，確認明確拒絕，沒有產生查詢結果。
 
-### 預期輸出
+### 預期輸出：先用這張清單自我檢查
 
-```text
-recorded-query：顯示真實 case 原文與 artifact 來源
-live-model：只有實際 encode 才可標記
-Q08：rows=[]
-Q99：unknown case ID；非零退出
-所有候選均附 chunk_id/document_id/source_version/text/distance
-```
+| 測試 | 你應該看到什麼 | 代表操作正確 |
+|---|---|---|
+| Q01 | 顯示 `recorded-query`、問題內容、artifact metadata、候選 rows | 使用了固定測試資料，沒有假裝即時產生向量 |
+| Q05 | 有候選，但保留型號不適用的提醒 | 沒有把相似文字直接當成答案 |
+| Q08 | `rows=[]` | `category_id=999` 篩選後真的沒有合格資料 |
+| Q99 | 顯示 unknown case ID，exit code 非 `0` | 不存在的問題被拒絕，沒有偷偷拿 Q01 代替 |
+| 每筆候選 | 有 `chunk_id`、`document_id`、`source_version`、`text`、`distance` | 可以追查這筆文字來自哪裡、哪一版 |
 
-### 解答
+如果沒有模型快取，新 query 可以明示無法執行；不要把 `recorded-query` 寫成 `live-model`。
 
-[23 Workshop 解答](workshop/23-integration.md)。API 正常回傳只代表串接完成；不代表模型品質、拒答能力或真实设备安全已驗證。
+### 教師檢查
+
+解答由教師另外提供；學生先依預期輸出與實際 exit code 自行驗證。API 正常回傳只代表串接完成；不代表模型品質、拒答能力或真实设备安全已驗證。
