@@ -14,6 +14,14 @@ FROM chunk_vectors ORDER BY distance ASC, chunk_id ASC LIMIT 3;
 
 C001 自我距離應接近 0，且排序鍵明確。
 
+### SQL 欄位怎麼看？
+
+| 欄位 | 簡單說明 | 預期 |
+|---|---|---|
+| `chunk_id` | 文字片段編號 | 例如 `C001` |
+| `distance` | 查詢和片段有多接近 | 越小越接近 |
+| `key` | EXPLAIN 實際使用的索引或路徑 | exact 不應冒充 ANN |
+
 ## 2. 完整可執行 code section
 
 ```python

@@ -13,6 +13,15 @@ SHOW INDEX FROM chunk_vectors;
 
 只在乾淨 checkpoint 建一次；DDL 會 commit。已存在或失敗時停下記錄，不刪建重來。
 
+### SQL 欄位怎麼看？
+
+| 欄位 | 簡單說明 | 預期 |
+|---|---|---|
+| `Key_name` | 索引名稱 | `vector_idx` |
+| `key` | EXPLAIN 實際採用的索引 | ANN 為 `vector_idx` |
+| `exact` / `ann` | 兩種搜尋拿到的結果 | 保留實際輸出 |
+| `intersection_fraction` | ANN 和 exact 重疊的比例 | 記錄本次結果，不宣稱普遍效能 |
+
 ## 2. 完整可執行 code section
 
 ```python

@@ -15,6 +15,18 @@ SELECT MIN(source_version) AS min_version, MAX(source_version) AS max_version FR
 
 預期資料庫 `mariadb_workshop_2026`、8 documents、16 chunks、版本 1。若不同，先停下並記錄實際結果。
 
+### SQL 欄位怎麼看？
+
+| 欄位 | 簡單說明 | 預期 |
+|---|---|---|
+| `DATABASE()` | 目前使用哪個資料庫 | `mariadb_workshop_2026` |
+| `CURRENT_USER()` | MariaDB 用哪個帳號驗證 | 依課程帳號 |
+| `documents` | 文件有幾份 | `8` |
+| `chunks` | 文字切成幾段 | `16` |
+| `min_version` / `max_version` | 文字版本範圍 | 都是 `1` |
+
+`squared_norm` 不用自己算：把它想成「向量大小的檢查數字」；本課程接近 `1` 就表示格式正常。
+
 ## 2. 完整可執行 code section
 
 把下列程式存成 `/tmp/ch17_embedding.py`；它不含 placeholders，使用教師提供的 artifact 並驗證每筆向量。

@@ -18,6 +18,16 @@ WHERE d.status='active' AND EXISTS (
 
 分類 1 預期十個唯一 chunk；category 999 應零列。
 
+### SQL 欄位怎麼看？
+
+| 欄位 | 簡單說明 | 預期 |
+|---|---|---|
+| `category_id` | 產品分類條件 | 依問題而定 |
+| `eligible_category_999` | 分類 999 的合格資料數 | `0` |
+| `exact_ids` | 條件篩選後的片段 | 依 Q01/Q08 實際輸出 |
+| `precision_at_k` / `recall_at_k` | 搜尋結果命中 qrels 的比例 | 依八題計算 |
+| `returned_on_no_answer` | 沒有答案時仍回傳幾筆 | 如實記錄 |
+
 ## 2. 完整可執行 code section
 
 ```python
