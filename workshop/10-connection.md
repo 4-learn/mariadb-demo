@@ -33,12 +33,19 @@ with closing(connect()) as conn:
 
 ## 方式 A：自己執行
 
+若這是第一次使用本課程 VM，先依主講義的「Python 環境準備」安裝 `mariadb==1.1.14`。若教師已準備好 venv，只需確認：
+
+```bash
+/home/yillkid/mariadb-course-venv/bin/python -c \
+'import mariadb; print(mariadb.__version__)'
+```
+
 將程式存成 `workshop/10-connection.py`，不要修改 SQL，直接執行：
 
 ```bash
 . "$HOME/mariadb-course-venv/bin/activate"
 cd ~/workspace/mariadb-demo
-PYTHONPATH=. python3 workshop/10-connection.py
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python workshop/10-connection.py
 printf 'exit=%s\n' "$?"
 ```
 
