@@ -7,19 +7,20 @@
 ```python
 import os
 from pathlib import Path
-from embedding_course import load_artifact,recorded_query
+from embedding_course import load_artifact
 from course_db import connect
-from vector_course import search,evaluate
+from vector_course import recorded_query, search, evaluate
 a=load_artifact(Path(os.environ.get("VECTOR_ARTIFACT",str(Path.home()/"mariadb-vectors.json"))))
-for q in ("Q01","Q08"):
- case,v=recorded_query(a,q)
- with connect() as conn: rows=search(conn,v,k=3,category_id=case["category_id"],mode="exact")
- print(q,[r["chunk_id"] for r in rows])
-print(evaluate(a,k=3))
+with connect() as conn:
+ for q in ("Q01","Q08"):
+  case,v=recorded_query(a,q)
+  rows=search(conn,v,k=3,category_id=case["category_id"],mode="exact")
+  print(q,[r["chunk_id"] for r in rows])
+ print(evaluate(conn,a,k=3))
 ```
 
 ## Agent prompt
-> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"` 執行 `/tmp/ch21_eval.py`；不得 placeholders、由排名反推 qrels、改分類或讀 HackMD/repos。回報 stdout/stderr/實際 exit code。
+> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，將完整程式原樣寫入並執行 `/tmp/ch21_eval.py`；不得 placeholders、由排名反推 qrels、改分類或讀 HackMD/repos。回報 stdout、stderr 與實際 exit code；若資料庫不是 artifact baseline，保留真實錯誤。
 
 ```bash
 PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch21_eval.py; rc=$?; echo "exit_code=$rc"
