@@ -88,7 +88,9 @@ Q08 要保留空結果；Q99 必須在查詢前以非零退出拒絕。
 - [小型完整 CLI](demo/23-integration.py)、[功能完整 CLI](vector_course.py)。
 - [模型／artifact 程式](embedding_course.py)。
 
-> **教師提示**：Workshop 解答不放在學生課綱連結中；請先完成練習，再依教師提供的解答檢查。
+> **教師提示**：Workshop 解答放在教師 repo，學生帳號無法開啟；請先完成練習，再依教師提供的解答檢查。
+>
+> [教師用：23 Workshop 解答](https://github.com/4-learn/mariadb-workshop/blob/main/teacher/answers/23-integration.md)
 
 ---
 

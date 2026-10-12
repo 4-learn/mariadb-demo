@@ -80,7 +80,9 @@ D. 還原：確認內容與向量 bytes 恢復，但版本依序留下為 3。
 - [實際驗收腳本](demo/24-acceptance.py)、[搜尋與交易 API](vector_course.py)。
 - [一致性 SQL](demo/22-consistency.sql)、[八題 qrels](data/search_cases.json)。
 
-> **教師提示**：Workshop 解答不放在學生課綱連結中；請先完成驗收，再依教師提供的解答檢查。
+> **教師提示**：Workshop 解答放在教師 repo，學生帳號無法開啟；請先完成驗收，再依教師提供的解答檢查。
+>
+> [教師用：24 Workshop 解答](https://github.com/4-learn/mariadb-workshop/blob/main/teacher/answers/24-acceptance.md)
 
 ---
 
