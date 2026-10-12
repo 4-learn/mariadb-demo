@@ -17,12 +17,16 @@ with connect() as conn:
 ```
 
 ## Agent prompt
-> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"` 執行 `/tmp/ch22_consistency.py`；不得 placeholders、忽略版本衝突或讀 HackMD/repos。先保存 before snapshot，回報 stdout/stderr/實際 exit code；故障注入只能用 CLI。
+> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"` 完成 Ch22 完整驗證；不得 placeholders、忽略版本衝突或讀 HackMD/repos。先用 `demo/21-reset-baseline.sql` 恢復 artifact baseline，再測 CLI 的 failure rollback、success、stale；最後再次 reset baseline，才執行 `/tmp/ch22_consistency.py`。每一步回報 stdout、stderr 與實際 exit code；保留真實錯誤。
 
 ```bash
-python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1 --fail-after-first; rc=$?; echo "failure_exit_code=$rc"
-python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1; rc=$?; echo "success_exit_code=$rc"
-python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1; rc=$?; echo "stale_exit_code=$rc"
+mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/21-reset-baseline.sql
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python vector_course.py ingest --artifact "$HOME/mariadb-vectors.json"
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1 --fail-after-first; rc=$?; echo "failure_exit_code=$rc"
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1; rc=$?; echo "success_exit_code=$rc"
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1; rc=$?; echo "stale_exit_code=$rc"
+mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/21-reset-baseline.sql
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python vector_course.py ingest --artifact "$HOME/mariadb-vectors.json"
 PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch22_consistency.py; rc=$?; echo "code_exit_code=$rc"
 ```
 
