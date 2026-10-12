@@ -2,7 +2,7 @@
 
 > **定位**：不另造大型專案，對既有搜尋工具執行可重現的增量驗收，區分模型觀察、資料正確性與尚未驗證事項。
 
-[上一節](23-integration.md) · [前置章節：Ch22 一致性更新](22-consistency.md)
+[上一節：HW23 CLI 串接](https://hackmd.io/@yillkid/SyYc0FljGx) · [前置章節：Ch22 一致性更新](https://hackmd.io/@yillkid/r1v9RYeifx)
 
 
 ## 你已經學過什麼？

@@ -2,7 +2,7 @@
 
 > **定位**：把私人連線設定、模型或固定向量、SQL 篩選與原文輸出串成完整命令列，不把候選包裝成模型已確認的答案。
 
-[上一節](22-consistency.md) · [下一節](24-acceptance.md)
+[上一節：Ch22 一致性更新](https://hackmd.io/@yillkid/r1v9RYeifx) · [下一節：HW24 增量驗收](https://hackmd.io/@yillkid/r1K5AFlofl)
 
 
 ## 你已經學過什麼？
@@ -24,6 +24,57 @@
 把結果印成 JSON
 遇到沒有答案或錯誤時誠實停止
 查詢結束後關閉資料庫連線
+```
+
+![HW23 引導流程](https://raw.githubusercontent.com/4-learn/mariadb-demo/main/diagrams/mariadb/hw23-guided-homework.png)
+
+## 先照著做：不要一開始自己寫完整 CLI
+
+### Step 1：先執行一個已知會成功的固定問題
+
+```bash
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python \
+  vector_course.py search --artifact "$HOME/mariadb-vectors.json" --case Q01 --k 3
+```
+
+先觀察輸出，不要急著改程式。找出：
+
+```text
+Q01 的問題文字
+找到哪些 chunk
+每個 chunk 的 distance
+原文版本與原文內容
+```
+
+### Step 2：請 Agent 只解釋，不先修改
+
+```text
+請先不要修改任何檔案。請用初學者能懂的方式說明：
+1. Q01 從哪個檔案來？
+2. category_id 做什麼？
+3. exact Top-K 找出什麼？
+4. 輸出的 chunk、版本、distance 分別代表什麼？
+只讀取必要檔案，不要讀取密碼或私人設定檔，也不要執行命令。
+```
+
+### Step 3：再請 Agent 執行固定範例
+
+```text
+請先說明你要執行的完整命令，再執行固定的 Q01 搜尋。
+使用課程固定 Python：/home/yillkid/mariadb-course-venv/bin/python
+設定 PYTHONPATH="$PWD"。
+不得修改檔案、不得讀取秘密、不得改 category 或偷偷換模型。
+回報實際 stdout、stderr 與 exit code。
+```
+
+### Step 4：最後才挑戰 Q05、Q08、Q99
+
+```text
+請依序執行 Q05、Q08、Q99；先說明每題預期會看到什麼。
+Q05 要說明「有候選不代表適用型號答案」；
+Q08 要保留空結果；Q99 必須在查詢前以非零退出拒絕。
+不得用 Q01 的向量代替 Q99，也不得把錯誤包裝成成功。
+回報每一步的命令、stdout、stderr 與 exit code。
 ```
 
 ## 學習目標
