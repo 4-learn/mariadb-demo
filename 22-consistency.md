@@ -34,14 +34,24 @@ with connect() as conn:
 
 ## 3. 固定 Agent prompt
 
-> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，把完整程式寫入 `/tmp/ch22_consistency.py` 後執行；不得 placeholders、忽略版本衝突或讀 HackMD/repos。先取得 before snapshot，再回報 stdout、stderr 與實際 exit code；故障注入用 CLI，不把例外當成功。
+> 使用 `/home/yillkid/mariadb-course-venv/bin/python`、`PYTHONPATH="$PWD"`，完成下列 Ch22 完整驗證；不得 placeholders、忽略版本衝突或讀 HackMD/repos。先用 `demo/21-reset-baseline.sql` 將課程合成資料庫恢復到 artifact baseline，再取得 before snapshot。先測 CLI 的故障 rollback、正常更新與 stale 拒絕；最後再次 reset baseline，才把完整 code section 原樣寫入 `/tmp/ch22_consistency.py` 並執行。每一步回報實際命令、stdout、stderr 與 exit code；不把例外當成功，不要自行修改資料庫來掩蓋錯誤。
 
 ## 4. 執行、快照與驗收
 
+CLI scenario 與完整 code section 必須各自從 version 1 baseline 開始，不能讓前一個成功更新消耗下一個 scenario 的 expected version：
+
 ```bash
-python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1 --fail-after-first; rc=$?; echo "failure_exit_code=$rc"
-python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1; rc=$?; echo "success_exit_code=$rc"
-python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1; rc=$?; echo "stale_exit_code=$rc"
+mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/21-reset-baseline.sql
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python vector_course.py ingest --artifact "$HOME/mariadb-vectors.json"
+# before snapshot
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1 --fail-after-first; rc=$?; echo "failure_exit_code=$rc"
+# after-failure snapshot
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1; rc=$?; echo "success_exit_code=$rc"
+# version 2 is now expected; this stale request must fail
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python vector_course.py update --artifact "$HOME/mariadb-vectors.json" --document D001 --expected-version 1; rc=$?; echo "stale_exit_code=$rc"
+# reset again before running the standalone code section
+mariadb --defaults-file="$HOME/mariadb-course-editor.cnf" mariadb_workshop_2026 < demo/21-reset-baseline.sql
+PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python vector_course.py ingest --artifact "$HOME/mariadb-vectors.json"
 PYTHONPATH="$PWD" /home/yillkid/mariadb-course-venv/bin/python /tmp/ch22_consistency.py; rc=$?; echo "code_exit_code=$rc"
 ```
 
