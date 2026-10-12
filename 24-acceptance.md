@@ -2,7 +2,7 @@
 
 > **定位**：不另造大型專案，對既有搜尋工具執行可重現的增量驗收，區分模型觀察、資料正確性與尚未驗證事項。
 
-[上一節](23-integration.md) · [模組作業](homework/22-search.md)
+[上一節](23-integration.md) · [前置章節：Ch22 一致性更新](22-consistency.md)
 
 
 ## 你已經學過什麼？
@@ -26,6 +26,47 @@
 故意製造失敗，確認資料沒有半改
 測試舊版本不能覆蓋新版本（stale）
 把結果整理成別人可以重做的驗收報告
+```
+
+![HW24 驗收流程](https://raw.githubusercontent.com/4-learn/mariadb-demo/main/diagrams/mariadb/hw24-acceptance.png)
+
+## 先照著做：四個小測試，再跑完整驗收
+
+### Step 1：先做 before snapshot
+
+```text
+先用 SQL 記錄 D001 的原文、版本、hash、向量版本。
+這張「操作前照片」之後要和操作後比較。
+```
+
+請 Agent 先解釋，不要直接執行：
+
+```text
+請先不要修改資料庫。請用初學者能懂的方式說明：
+1. before snapshot 是什麼？
+2. 為什麼要同時記錄原文、版本、hash、向量？
+3. 故意失敗後，哪些欄位應該完全不變？
+不得讀取密碼或私人設定檔，不要執行命令。
+```
+
+### Step 2：分開測試故障、成功、stale、還原
+
+```text
+請先說明每一步命令與預期結果，再執行四個測試：
+A. 故意中途失敗：確認 before == after。
+B. 正常更新：確認 D001 從版本 1 變成版本 2。
+C. stale 更新：用舊版本 1 再送一次，確認被拒絕且資料不變。
+D. 還原：確認內容與向量 bytes 恢復，但版本依序留下為 3。
+每一步回報 stdout、stderr、exit code；不要把錯誤當成功。
+```
+
+### Step 3：最後才執行完整驗收
+
+```text
+請執行 demo/24-acceptance.py 前，先說明它會檢查什麼。
+使用 artifact：$HOME/mariadb-vectors.json。
+保留每個 check、EXPLAIN plan、八題結果、交易前後快照與未驗證項目。
+不要自行 reset、DROP、覆蓋資料庫或修改測試結果。
 ```
 
 ## 學習目標
