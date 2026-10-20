@@ -11,6 +11,8 @@ ARTIFACT="${ARTIFACT:-$COURSE_DIR/data/mariadb-vectors.json}"
 EDITOR_CNF="${EDITOR_CNF:-$HOME/mariadb-course-editor.cnf}"
 APP_CONFIG="${APP_CONFIG:-$HOME/mariadb-course-app.json}"
 SOCKET="${MARIADB_SOCKET:-/run/mysqld/mysqld.sock}"
+HOST="${MARIADB_HOST:-}"
+PORT="${MARIADB_PORT:-3306}"
 DB="mariadb_workshop_2026"
 PY="${COURSE_PYTHON:-}"
 [[ -x "$PY" ]] || PY="$(command -v python3)"
@@ -48,7 +50,11 @@ p = json.load(open(sys.argv[1], encoding="utf-8"))
 if p.get("user") != "course_app" or p.get("database") != "mariadb_workshop_2026":
     raise SystemExit("app config must target course_app/mariadb_workshop_2026")
 PY
-MARIADB=(mariadb --defaults-extra-file="$EDITOR_CNF" --protocol=socket --socket="$SOCKET" "$DB")
+if [[ -n "$HOST" ]]; then
+  MARIADB=(mariadb --defaults-extra-file="$EDITOR_CNF" --host="$HOST" --port="$PORT" "$DB")
+else
+  MARIADB=(mariadb --defaults-extra-file="$EDITOR_CNF" --protocol=socket --socket="$SOCKET" "$DB")
+fi
 "${MARIADB[@]}" -N -B -e "SELECT VERSION(), DATABASE();" | tee /tmp/ch24-db-check.txt
  grep -q '11\.8\.' /tmp/ch24-db-check.txt || fail 'MariaDB 11.8.x / database check failed'
 
