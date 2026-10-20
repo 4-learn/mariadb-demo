@@ -19,6 +19,11 @@ fail(){ echo "FAIL: $*" >&2; exit 1; }
 [[ -f "$ARTIFACT" ]] || fail "artifact not found: $ARTIFACT"
 [[ -f "$COURSE_DIR/prepare_workshop.py" ]] || fail "prepare_workshop.py not found"
 
+printf '%s\n' 'This resets mariadb_workshop_2026 to the Ch24 v1 checkpoint.'
+printf '%s' 'Type RESET-CH24 to continue: '
+read -r confirmation
+[[ "$confirmation" == "RESET-CH24" ]] || { echo 'Cancelled; no database changes made.'; exit 1; }
+
 # Bootstrap a clean VM if the workshop database is absent.
 if ! mariadb --no-defaults --protocol=socket --socket="$SOCKET" --user=root -N -B \
     -e "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME='$DB'" 2>/dev/null | grep -qx "$DB"; then
