@@ -1,0 +1,6 @@
+{
+  "user": "course_app",
+  "password": "CHANGE-ME",
+  "database": "mariadb_workshop_2026",
+  "unix_socket": "/run/mysqld/mysqld.sock"
+}

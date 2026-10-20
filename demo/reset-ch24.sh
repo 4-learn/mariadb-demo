@@ -8,8 +8,10 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 COURSE_DIR="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 cd "$COURSE_DIR"
 ARTIFACT="${ARTIFACT:-$COURSE_DIR/data/mariadb-vectors.json}"
+ARTIFACT_URL="${ARTIFACT_URL:-https://raw.githubusercontent.com/4-learn/mariadb-demo/main/data/mariadb-vectors.json}"
 EDITOR_CNF="${EDITOR_CNF:-$HOME/mariadb-course-editor.cnf}"
 APP_CONFIG="${APP_CONFIG:-$HOME/mariadb-course-app.json}"
+APP_CONFIG_URL="${APP_CONFIG_URL:-https://raw.githubusercontent.com/4-learn/mariadb-demo/main/data/mariadb-course-app.json}"
 SOCKET="${MARIADB_SOCKET:-/run/mysqld/mysqld.sock}"
 HOST="${MARIADB_HOST:-}"
 PORT="${MARIADB_PORT:-3306}"
@@ -18,6 +20,11 @@ PY="${COURSE_PYTHON:-}"
 [[ -x "$PY" ]] || PY="$(command -v python3)"
 
 fail(){ echo "FAIL: $*" >&2; exit 1; }
+if [[ ! -f "$ARTIFACT" ]]; then
+  echo "[0/7] artifact missing: downloading $ARTIFACT"
+  mkdir -p "$(dirname "$ARTIFACT")"
+  curl --fail --location --silent --show-error --output "$ARTIFACT" "$ARTIFACT_URL"
+fi
 [[ -f "$ARTIFACT" ]] || fail "artifact not found: $ARTIFACT"
 [[ -f "$COURSE_DIR/prepare_workshop.py" ]] || fail "prepare_workshop.py not found"
 python3 - "$ARTIFACT" <<'PY'
@@ -41,7 +48,11 @@ if [[ -z "$HOST" ]] && ! mariadb --no-defaults --protocol=socket --socket="$SOCK
   "$PY" prepare_workshop.py --directory "$HOME" --socket "$SOCKET"
 fi
 
-[[ -f "$EDITOR_CNF" ]] || fail "missing $EDITOR_CNF"
+if [[ ! -f "$APP_CONFIG" ]]; then
+  echo "[0/7] app config missing: downloading template $APP_CONFIG"
+  curl --fail --location --silent --show-error --output "$APP_CONFIG" "$APP_CONFIG_URL"
+fi
+[[ -f "$EDITOR_CNF" ]] || fail "missing $EDITOR_CNF; prepare_workshop.py should create it"
 [[ -f "$APP_CONFIG" ]] || fail "missing $APP_CONFIG"
 chmod 600 "$EDITOR_CNF" "$APP_CONFIG"
 python3 - "$APP_CONFIG" <<'PY'
