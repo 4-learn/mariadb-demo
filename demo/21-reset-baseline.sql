@@ -46,5 +46,5 @@ UNION ALL SELECT 'C014','D007','本段為虛構教學資料，不適用真實設
 UNION ALL SELECT 'C015','D008','本段為虛構教學資料，不適用真實設備。教學感測器 I 顯示錯誤代碼 E01，代表模擬輸入欄位缺少測量值。補上課堂指定數值後重新檢查，並保存錯誤代碼與修正前後的欄位內容。'
 UNION ALL SELECT 'C016','D008','本段為虛構教學資料，不適用真實設備。教學感測器 I 出現未列出的錯誤代碼時，保留完整代碼並回報教師。本文件只定義 E01，不能自行推測其他代碼的意義，也不能宣稱所有錯誤都已排除。'
 ) AS corpus;
-INSERT INTO course_meta (dataset_version) VALUES ('sop-v1');
+INSERT INTO course_meta (dataset_version) VALUES ('products-v1'), ('sop-v1');
 COMMIT;
