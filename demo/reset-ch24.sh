@@ -49,7 +49,8 @@ if p.get("user") != "course_app" or p.get("database") != "mariadb_workshop_2026"
     raise SystemExit("app config must target course_app/mariadb_workshop_2026")
 PY
 MARIADB=(mariadb --defaults-extra-file="$EDITOR_CNF" --protocol=socket --socket="$SOCKET" "$DB")
-"${MARIADB[@]}" -N -B -e "SELECT VERSION(), DATABASE();" | grep -q '11\.8\.' || fail 'MariaDB 11.8.x / database check failed'
+"${MARIADB[@]}" -N -B -e "SELECT VERSION(), DATABASE();" | tee /tmp/ch24-db-check.txt
+ grep -q '11\.8\.' /tmp/ch24-db-check.txt || fail 'MariaDB 11.8.x / database check failed'
 
 # Ch18 is skipped only when its table already exists.
 if ! "${MARIADB[@]}" -N -B -e "SHOW TABLES LIKE 'chunk_vectors'" | grep -qx chunk_vectors; then
