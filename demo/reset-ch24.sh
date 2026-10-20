@@ -35,7 +35,7 @@ read -r confirmation
 [[ "$confirmation" == "RESET-CH24" ]] || { echo 'Cancelled; no database changes made.'; exit 1; }
 
 # Bootstrap a clean VM if the workshop database is absent.
-if ! mariadb --no-defaults --protocol=socket --socket="$SOCKET" --user=root -N -B \
+if [[ -z "$HOST" ]] && ! mariadb --no-defaults --protocol=socket --socket="$SOCKET" --user=root -N -B \
     -e "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME='$DB'" 2>/dev/null | grep -qx "$DB"; then
   echo '[1/7] workshop database absent: running prepare_workshop.py'
   "$PY" prepare_workshop.py --directory "$HOME" --socket "$SOCKET"
