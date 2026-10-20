@@ -18,6 +18,14 @@ PY="${COURSE_PYTHON:-}"
 fail(){ echo "FAIL: $*" >&2; exit 1; }
 [[ -f "$ARTIFACT" ]] || fail "artifact not found: $ARTIFACT"
 [[ -f "$COURSE_DIR/prepare_workshop.py" ]] || fail "prepare_workshop.py not found"
+python3 - "$ARTIFACT" <<'PY'
+import json, sys
+p = json.load(open(sys.argv[1], encoding="utf-8"))
+chunks = p.get("chunks", [])
+meta = p.get("metadata", {})
+if len(chunks) != 16 or meta.get("dimension") != 512:
+    raise SystemExit("artifact must contain 16 chunks and dimension=512")
+PY
 
 printf '%s\n' 'This resets mariadb_workshop_2026 to the Ch24 v1 checkpoint.'
 printf '%s' 'Type RESET-CH24 to continue: '
@@ -34,6 +42,12 @@ fi
 [[ -f "$EDITOR_CNF" ]] || fail "missing $EDITOR_CNF"
 [[ -f "$APP_CONFIG" ]] || fail "missing $APP_CONFIG"
 chmod 600 "$EDITOR_CNF" "$APP_CONFIG"
+python3 - "$APP_CONFIG" <<'PY'
+import json, sys
+p = json.load(open(sys.argv[1], encoding="utf-8"))
+if p.get("user") != "course_app" or p.get("database") != "mariadb_workshop_2026":
+    raise SystemExit("app config must target course_app/mariadb_workshop_2026")
+PY
 MARIADB=(mariadb --defaults-extra-file="$EDITOR_CNF" --protocol=socket --socket="$SOCKET" "$DB")
 "${MARIADB[@]}" -N -B -e "SELECT VERSION(), DATABASE();" | grep -q '11\.8\.' || fail 'MariaDB 11.8.x / database check failed'
 
