@@ -41,10 +41,25 @@ printf '%s' 'Type RESET-CH24 to continue: '
 read -r confirmation
 [[ "$confirmation" == "RESET-CH24" ]] || { echo 'Cancelled; no database changes made.'; exit 1; }
 
-# Bootstrap a clean VM if the workshop database is absent.
-if [[ -z "$HOST" ]] && ! mariadb --no-defaults --protocol=socket --socket="$SOCKET" --user=root -N -B \
-    -e "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME='$DB'" 2>/dev/null | grep -qx "$DB"; then
-  echo '[1/7] workshop database absent: running prepare_workshop.py'
+# Detect the workshop with the student's own course account, never MariaDB root:
+# on Ubuntu, root only works through sudo, and a refused login must not be
+# mistaken for a missing database.
+if [[ -f "$EDITOR_CNF" ]]; then
+  if [[ -n "$HOST" ]]; then
+    PROBE=(mariadb --defaults-extra-file="$EDITOR_CNF" --host="$HOST" --port="$PORT")
+  else
+    PROBE=(mariadb --defaults-extra-file="$EDITOR_CNF" --protocol=socket --socket="$SOCKET")
+  fi
+  found="$("${PROBE[@]}" -N -B -e "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME='$DB'")" \
+    || fail "cannot log in with $EDITOR_CNF; see the MariaDB error above. Nothing was changed."
+  [[ "$found" == "$DB" ]] \
+    || fail "$EDITOR_CNF exists but $DB is missing. Nothing was changed; ask the instructor before rerunning."
+  echo '[1/7] workshop database exists: skip bootstrap'
+elif [[ -n "$HOST" ]]; then
+  fail "missing $EDITOR_CNF for remote host $HOST"
+else
+  # Clean VM: no course account yet. prepare_workshop.py uses sudo for setup.
+  echo '[1/7] clean VM: running prepare_workshop.py (sudo password may be asked)'
   "$PY" prepare_workshop.py --directory "$HOME" --socket "$SOCKET"
 fi
 
