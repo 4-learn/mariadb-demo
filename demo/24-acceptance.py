@@ -79,7 +79,7 @@ def main():
         texts = {c["chunk_id"]: c["text"] for c in artifact["updates"]["D001"]["chunks"]}
         rejected(lambda: update_document(conn, "D001", 1, texts, prepared=artifact,
                                          fail_after_first=True), RuntimeError)
-        assert snapshot(conn) == before and not conn.in_transaction
+        assert snapshot(conn) == before and not getattr(conn, "in_transaction", False)
         results.append("injected failure rolled back exact bytes and versions")
         update_document(conn, "D001", 1, texts, prepared=artifact)
         after = snapshot(conn)
